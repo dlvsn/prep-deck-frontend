@@ -1,0 +1,109 @@
+/*
+ * Theme tokens: mode (dark / light) × accent (8 colours), set as data attributes on <html>.
+ * Components read variables only, never a literal colour.
+ *
+ * Each mode defines all eight accent colours as --accent-<name>, so a colour swatch can show any
+ * accent in the current mode, and [data-accent] only picks which one becomes --accent.
+ */
+
+:root,
+[data-mode='dark'] {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --rail: #0b0d10;
+  --panel: #12151a;
+  --card: #161a20;
+  --raised: #1d222a;
+  --menu: #181c22;
+  --border: #232831;
+  --border-2: #2e353f;
+  --text: #e8ecf1;
+  --text-2: #d3d9e1;
+  --muted: #8f99a7;
+  --amber: #e8b04f;
+  --code: #0b0d10;
+  --scrim: rgba(5, 7, 10, 0.66);
+  --shadow: none;
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --danger: #f87171;
+  --close-hover: #c42b1c;
+
+  --accent-mint: #34d3b4;
+  --accent-pink: #f472b6;
+  --accent-purple: #a78bfa;
+  --accent-blue: #60a5fa;
+  --accent-orange: #fb923c;
+  --accent-green: #4ade80;
+  --accent-yellow: #facc15;
+  --accent-red: #f87171;
+
+  --accent-ink: #0b0d10;
+  --accent-soft-mix: 20%;
+}
+
+[data-mode='light'] {
+  color-scheme: light;
+  --bg: #f4f6f9;
+  --rail: #ffffff;
+  --panel: #ffffff;
+  --card: #ffffff;
+  --raised: #eef1f5;
+  --menu: #ffffff;
+  --border: #e3e7ed;
+  --border-2: #d3d9e2;
+  --text: #14171c;
+  --text-2: #2b313a;
+  --muted: #5b6472;
+  --amber: #b45309;
+  --code: #f6f8fa;
+  --scrim: rgba(20, 23, 28, 0.42);
+  --shadow: 0 1px 2px rgba(20, 23, 28, 0.05);
+  --shadow-pop: 0 12px 32px rgba(20, 23, 28, 0.16);
+  --danger: #c62828;
+  --close-hover: #c42b1c;
+
+  --accent-mint: #0f8f78;
+  --accent-pink: #c0267a;
+  --accent-purple: #6d3fe0;
+  --accent-blue: #1f63d6;
+  --accent-orange: #c2410c;
+  --accent-green: #15803d;
+  --accent-yellow: #a16207;
+  --accent-red: #c62828;
+
+  --accent-ink: #ffffff;
+  --accent-soft-mix: 13%;
+}
+
+:root,
+:root[data-accent='mint'] { --accent: var(--accent-mint); }
+:root[data-accent='pink'] { --accent: var(--accent-pink); }
+:root[data-accent='purple'] { --accent: var(--accent-purple); }
+:root[data-accent='blue'] { --accent: var(--accent-blue); }
+:root[data-accent='orange'] { --accent: var(--accent-orange); }
+:root[data-accent='green'] { --accent: var(--accent-green); }
+:root[data-accent='yellow'] { --accent: var(--accent-yellow); }
+:root[data-accent='red'] { --accent: var(--accent-red); }
+
+:root {
+  --accent-soft: color-mix(in srgb, var(--accent) var(--accent-soft-mix), transparent);
+  /* Light accents are already dark enough for 4.5:1 on white, so text can use the accent as is. */
+  --accent-text: var(--accent);
+
+  --radius-button: 10px;
+  --radius-card: 14px;
+  --radius-modal: 18px;
+  --radius-chip: 15px;
+
+  --font-ui: 'Inter', system-ui, sans-serif;
+  /* Space Grotesk has no Cyrillic: Ukrainian headings fall through to Inter glyph by glyph. */
+  --font-heading: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --titlebar-height: 36px;
+  --rail-width: 72px;
+  --rail-width-compact: 56px;
+  --bottom-bar-height: 60px;
+}

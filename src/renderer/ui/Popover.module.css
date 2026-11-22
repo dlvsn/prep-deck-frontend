@@ -1,0 +1,30 @@
+.panel {
+  position: fixed;
+  z-index: 50;
+  background: var(--menu);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-pop);
+  outline: none;
+  overflow: auto;
+  max-height: calc(100vh - 16px);
+}
+
+.floating {
+  width: 380px;
+  max-width: calc(100vw - 16px);
+  animation: pop-in 220ms var(--ease);
+}
+
+.sheet {
+  left: 8px;
+  right: 8px;
+  bottom: calc(var(--bottom-bar-height) + 8px);
+  max-height: calc(100vh - var(--bottom-bar-height) - 24px);
+  animation: sheet-up 280ms var(--ease);
+}
+
+@keyframes sheet-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}

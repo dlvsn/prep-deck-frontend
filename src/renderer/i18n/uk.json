@@ -1,0 +1,90 @@
+{
+  "app": {
+    "name": "Prep Deck"
+  },
+  "window": {
+    "minimize": "Згорнути",
+    "maximize": "Розгорнути",
+    "restore": "Відновити",
+    "close": "Закрити"
+  },
+  "nav": {
+    "myTopics": "Мої теми",
+    "shared": "Спільні зі мною",
+    "practice": "Практика",
+    "sharedShort": "Спільні",
+    "newInvites_one": "{{count}} нове запрошення",
+    "newInvites_few": "{{count}} нові запрошення",
+    "newInvites_many": "{{count}} нових запрошень",
+    "newInvites_other": "{{count}} нового запрошення"
+  },
+  "topics": {
+    "share": "Поділитися",
+    "emptyTitle": "Тут житимуть твої теми",
+    "emptyBody": "Дерево тем і картки з'являться на наступних етапах."
+  },
+  "cards": {
+    "new": "Нова картка",
+    "count_one": "{{count}} картка",
+    "count_few": "{{count}} картки",
+    "count_many": "{{count}} карток",
+    "count_other": "{{count}} картки"
+  },
+  "filters": {
+    "all": "Усі",
+    "due": "До повторення",
+    "new": "Нові",
+    "learning": "Вивчаю",
+    "known": "Знаю"
+  },
+  "practice": {
+    "show": "Показати відповідь",
+    "due_one": "{{count}} до повторення",
+    "due_few": "{{count}} до повторення",
+    "due_many": "{{count}} до повторення",
+    "due_other": "{{count}} до повторення",
+    "grades": {
+      "again": "Ще раз",
+      "hard": "Важко",
+      "good": "Добре",
+      "easy": "Легко"
+    }
+  },
+  "shared": {
+    "copy": "Копіювати до моїх тем"
+  },
+  "settings": {
+    "appearance": "Вигляд",
+    "mode": {
+      "dark": "Темна",
+      "light": "Світла"
+    },
+    "color": "Колір",
+    "language": "Мова",
+    "accents": {
+      "mint": "М'ятний",
+      "pink": "Рожевий",
+      "purple": "Фіолетовий",
+      "blue": "Синій",
+      "orange": "Оранжевий",
+      "green": "Зелений",
+      "yellow": "Жовтий",
+      "red": "Червоний"
+    },
+    "languages": {
+      "en": "English",
+      "uk": "Українська"
+    }
+  },
+  "auth": {
+    "logout": "Вийти",
+    "account": "Обліковий запис"
+  },
+  "errors": {
+    "generic": "Щось пішло не так",
+    "offline": "Немає з'єднання",
+    "sessionExpired": "Сесія завершилась. Увійди знову.",
+    "noAccess": "У тебе більше немає доступу",
+    "forbidden": "Тут це зробити не можна"
+  }
+}

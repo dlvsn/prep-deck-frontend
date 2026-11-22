@@ -1,0 +1,95 @@
+import type {
+  Card,
+  CardDraft,
+  CardImage,
+  DayProgress,
+  Grade,
+  Id,
+  PracticeItem,
+  PracticeScope,
+  Role,
+  Session,
+  Settings,
+  Topic,
+  TopicSharing,
+  User
+} from './types'
+
+/**
+ * What the UI may ask of the backend, one interface per area. Each has an in-memory mock
+ * (api/mocks) and, once the backend exposes it, an HTTP implementation; the UI never knows which.
+ */
+
+export interface AuthRepository {
+  login(login: string, password: string): Promise<Session>
+  register(email: string, username: string, password: string): Promise<Session>
+  refresh(refreshToken: string): Promise<Session>
+  logout(): Promise<void>
+  me(): Promise<User>
+}
+
+export interface TopicsRepository {
+  /** Topics the user owns, flat; parentId builds the tree. */
+  listMine(): Promise<Topic[]>
+  /** Topics shared with the user, flat, each carrying its owner. */
+  listShared(): Promise<Topic[]>
+  create(title: string, parentId: Id | null): Promise<Topic>
+  rename(id: Id, title: string): Promise<Topic>
+  /** Moves under a new parent (null: to the root) at the given position among its siblings. */
+  move(id: Id, parentId: Id | null, order: number): Promise<Topic>
+  /** Deletes the topic with all its subtopics and cards. */
+  remove(id: Id): Promise<void>
+  markSeen(id: Id): Promise<void>
+}
+
+export type CardSort = 'edited' | 'created' | 'alpha' | 'status'
+
+export interface CardsRepository {
+  /** Cards directly in the topic. */
+  list(topicId: Id): Promise<Card[]>
+  get(id: Id): Promise<Card>
+  create(topicId: Id, draft: CardDraft): Promise<Card>
+  update(id: Id, draft: CardDraft): Promise<Card>
+  remove(id: Id): Promise<void>
+  /** Questions, answers and tags across every topic the user can see. */
+  search(query: string): Promise<Card[]>
+}
+
+export interface ImagesRepository {
+  upload(file: Blob, caption?: string): Promise<CardImage>
+}
+
+export interface PracticeRepository {
+  queue(scope: PracticeScope): Promise<PracticeItem[]>
+  grade(cardId: Id, grade: Grade): Promise<Card>
+  today(): Promise<DayProgress>
+}
+
+export interface SharesRepository {
+  get(topicId: Id): Promise<TopicSharing>
+  /** Rejects with "share.noSuchUser" when nobody has that email or username. */
+  invite(topicId: Id, login: string, role: Exclude<Role, 'owner'>): Promise<TopicSharing>
+  changeRole(topicId: Id, userId: Id, role: Exclude<Role, 'owner'>): Promise<TopicSharing>
+  revoke(topicId: Id, userId: Id): Promise<TopicSharing>
+  setLinkEnabled(topicId: Id, enabled: boolean): Promise<TopicSharing>
+  /** Opens a shared link: the topic joins Shared with me as Can view. */
+  acceptLink(token: string): Promise<Topic>
+  leave(topicId: Id): Promise<void>
+  /** Copies the topic with its subtopics and cards under parentId (null: the root). */
+  copyToMine(topicId: Id, parentId: Id | null): Promise<Topic>
+}
+
+export interface SettingsRepository {
+  get(): Promise<Settings>
+  update(settings: Settings): Promise<Settings>
+}
+
+export interface Repositories {
+  auth: AuthRepository
+  topics: TopicsRepository
+  cards: CardsRepository
+  images: ImagesRepository
+  practice: PracticeRepository
+  shares: SharesRepository
+  settings: SettingsRepository
+}

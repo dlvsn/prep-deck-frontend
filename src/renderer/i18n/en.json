@@ -1,0 +1,84 @@
+{
+  "app": {
+    "name": "Prep Deck"
+  },
+  "window": {
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "restore": "Restore",
+    "close": "Close"
+  },
+  "nav": {
+    "myTopics": "My topics",
+    "shared": "Shared with me",
+    "practice": "Practice",
+    "sharedShort": "Shared",
+    "newInvites_one": "{{count}} new invitation",
+    "newInvites_other": "{{count}} new invitations"
+  },
+  "topics": {
+    "share": "Share",
+    "emptyTitle": "Your topics will live here",
+    "emptyBody": "The topic tree and the cards arrive in the next stages."
+  },
+  "cards": {
+    "new": "New card",
+    "count_one": "{{count}} card",
+    "count_other": "{{count}} cards"
+  },
+  "filters": {
+    "all": "All",
+    "due": "Due",
+    "new": "New",
+    "learning": "Learning",
+    "known": "Known"
+  },
+  "practice": {
+    "show": "Show answer",
+    "due_one": "{{count}} due",
+    "due_other": "{{count}} due",
+    "grades": {
+      "again": "Again",
+      "hard": "Hard",
+      "good": "Good",
+      "easy": "Easy"
+    }
+  },
+  "shared": {
+    "copy": "Copy to my topics"
+  },
+  "settings": {
+    "appearance": "Appearance",
+    "mode": {
+      "dark": "Dark",
+      "light": "Light"
+    },
+    "color": "Color",
+    "language": "Language",
+    "accents": {
+      "mint": "Mint",
+      "pink": "Pink",
+      "purple": "Purple",
+      "blue": "Blue",
+      "orange": "Orange",
+      "green": "Green",
+      "yellow": "Yellow",
+      "red": "Red"
+    },
+    "languages": {
+      "en": "English",
+      "uk": "Українська"
+    }
+  },
+  "auth": {
+    "logout": "Log out",
+    "account": "Account"
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "offline": "No connection",
+    "sessionExpired": "Your session has ended. Log in again.",
+    "noAccess": "You no longer have access",
+    "forbidden": "You can't do that here"
+  }
+}
