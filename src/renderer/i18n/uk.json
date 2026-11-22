@@ -193,7 +193,15 @@
     "resendTooSoon": "Зачекай трохи перед повторним запитом.",
     "verifiedTitle": "Email підтверджено",
     "verifiedSub": "Акаунт готовий. Створімо твою першу тему.",
-    "openApp": "Відкрити Prep Deck"
+    "openApp": "Відкрити Prep Deck",
+    "hero": {
+      "question": "Питання",
+      "answer": "Відповідь",
+      "streak": "21 день поспіль",
+      "streakSub": "Сьогодні повторено 14 з 22 карток",
+      "less": "Менше",
+      "more": "Більше"
+    }
   },
   "errors": {
     "generic": "Щось пішло не так",

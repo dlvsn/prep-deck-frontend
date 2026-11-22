@@ -39,6 +39,20 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent);
 }
 
+/* A field (or the code boxes) turning invalid gives a short shake; the forms clear their errors on
+   each try, so a second failed try shakes again. */
+.invalid {
+  animation: shake 400ms ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: none; }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
 .input {
   flex: 1;
   min-width: 0;

@@ -23,6 +23,27 @@
   cursor: default;
 }
 
+/* Busy is disabled too, but it should read as working, not as greyed out. */
+.button.busy:disabled {
+  opacity: 0.85;
+  cursor: progress;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 2px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .primary {
   background: var(--accent);
   color: var(--accent-ink);

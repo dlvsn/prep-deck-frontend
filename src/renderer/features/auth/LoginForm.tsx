@@ -81,7 +81,7 @@ export function LoginForm({
         onChange={(e) => setValues({ ...values, password: e.target.value })}
       />
 
-      <Button type="submit" variant="primary" className={styles.submit} disabled={busy}>
+      <Button type="submit" variant="primary" className={styles.submit} busy={busy}>
         {busy ? t('auth.loggingIn') : t('auth.login')}
       </Button>
 

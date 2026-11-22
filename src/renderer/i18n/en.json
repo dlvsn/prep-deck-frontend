@@ -181,7 +181,15 @@
     "resendTooSoon": "Wait a little before asking again.",
     "verifiedTitle": "Email confirmed",
     "verifiedSub": "Your account is ready. Let's create your first topic.",
-    "openApp": "Open Prep Deck"
+    "openApp": "Open Prep Deck",
+    "hero": {
+      "question": "Question",
+      "answer": "Answer",
+      "streak": "21-day streak",
+      "streakSub": "14 of 22 cards reviewed today",
+      "less": "Less",
+      "more": "More"
+    }
   },
   "errors": {
     "generic": "Something went wrong",

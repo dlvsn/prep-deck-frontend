@@ -11,6 +11,23 @@
   to { opacity: 1; transform: none; }
 }
 
+/*
+ * The form's rows rise one after another, 40 ms apart, as on the mockups. `backwards` holds the
+ * first frame through the delay and lets go at the end, so the rows' own transforms (a pressed
+ * button, a shaking field) still work afterwards.
+ */
+.form > * {
+  animation: rise 300ms var(--ease) backwards;
+}
+
+.form > :nth-child(2) { animation-delay: 40ms; }
+.form > :nth-child(3) { animation-delay: 80ms; }
+.form > :nth-child(4) { animation-delay: 120ms; }
+.form > :nth-child(5) { animation-delay: 160ms; }
+.form > :nth-child(6) { animation-delay: 200ms; }
+.form > :nth-child(7) { animation-delay: 240ms; }
+.form > :nth-child(n + 8) { animation-delay: 280ms; }
+
 .flow {
   width: 100%;
   display: flex;
@@ -154,4 +171,11 @@
   border-radius: 50%;
   background: var(--accent-soft);
   color: var(--accent-text);
+  animation: pop 450ms var(--ease) backwards;
+}
+
+@keyframes pop {
+  0% { opacity: 0; transform: scale(0.6); }
+  70% { transform: scale(1.08); }
+  100% { opacity: 1; transform: none; }
 }

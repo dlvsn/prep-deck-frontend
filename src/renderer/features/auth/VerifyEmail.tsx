@@ -51,6 +51,7 @@ export function VerifyEmail({
     }
     if (busy) return
     submitted.current = value
+    setError(null)
     setBusy(true)
     try {
       onVerified(await verifyEmail(email, value))
@@ -129,7 +130,7 @@ export function VerifyEmail({
           <p className={styles.note}>{t('auth.codeValid')}</p>
         )}
 
-        <Button type="submit" variant="primary" className={styles.submit} disabled={busy}>
+        <Button type="submit" variant="primary" className={styles.submit} busy={busy}>
           {t('auth.confirm')}
         </Button>
 
@@ -178,7 +179,7 @@ export function EmailVerified({ session }: { session: Session }) {
       <Button
         variant="primary"
         className={styles.submit}
-        disabled={busy}
+        busy={busy}
         autoFocus
         onClick={() => {
           setBusy(true)

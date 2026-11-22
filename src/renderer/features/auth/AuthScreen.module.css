@@ -21,6 +21,21 @@
   overflow: hidden;
 }
 
+/* Logo, picture and tagline paint above the backdrop of picture F, which comes first. */
+.brand > * {
+  position: relative;
+}
+
+.brand > .backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+/* Picture F brings its own colour; the corner glow would only muddy it. */
+.brand[data-hero='mesh'] {
+  background: var(--bg);
+}
+
 .tagline {
   display: flex;
   flex-direction: column;

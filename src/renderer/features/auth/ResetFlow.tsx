@@ -51,6 +51,7 @@ function EmailStep({ initialEmail, onSent }: { initialEmail: string; onSent(emai
       setError(t(email.trim() ? 'auth.emailInvalid' : 'auth.emailRequired'))
       return
     }
+    setError(null)
     setBusy(true)
     try {
       await api.auth.requestPasswordReset(email.trim())
@@ -80,7 +81,7 @@ function EmailStep({ initialEmail, onSent }: { initialEmail: string; onSent(emai
           setError(null)
         }}
       />
-      <Button type="submit" variant="primary" className={styles.submit} disabled={busy}>
+      <Button type="submit" variant="primary" className={styles.submit} busy={busy}>
         {t('auth.sendCode')}
       </Button>
     </form>
@@ -106,6 +107,7 @@ function CodeStep({ email, onVerified }: { email: string; onVerified(token: stri
       setError(t('auth.codeIncomplete'))
       return
     }
+    setError(null)
     setBusy(true)
     try {
       onVerified(await api.auth.verifyResetCode(email, code))
@@ -152,7 +154,7 @@ function CodeStep({ email, onVerified }: { email: string; onVerified(token: stri
       ) : (
         <p className={styles.note}>{t('auth.codeValid')}</p>
       )}
-      <Button type="submit" variant="primary" className={styles.submit} disabled={busy}>
+      <Button type="submit" variant="primary" className={styles.submit} busy={busy}>
         {t('auth.continue')}
       </Button>
       <p className={styles.footer}>
@@ -193,6 +195,7 @@ function PasswordStep({ token, onSaved }: { token: string; onSaved(): void }) {
       if (!confirm) setServerError(t('auth.confirmRequired'))
       return
     }
+    setServerError(null)
     setBusy(true)
     try {
       await api.auth.resetPassword(token, password)
@@ -236,7 +239,7 @@ function PasswordStep({ token, onSaved }: { token: string; onSaved(): void }) {
           setServerError(null)
         }}
       />
-      <Button type="submit" variant="primary" className={styles.submit} disabled={busy}>
+      <Button type="submit" variant="primary" className={styles.submit} busy={busy}>
         {t('auth.savePassword')}
       </Button>
     </form>

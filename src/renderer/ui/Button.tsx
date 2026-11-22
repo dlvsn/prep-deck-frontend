@@ -8,13 +8,25 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode
   /** Icon only, square; the text goes to aria-label instead. */
   iconOnly?: boolean
+  /** Waiting on the server: a spinner before the text, and the button does not take clicks. */
+  busy?: boolean
 }
 
-export function Button({ variant = 'secondary', icon, iconOnly, className, children, type = 'button', ...rest }: ButtonProps) {
-  const classes = [styles.button, styles[variant], iconOnly ? styles.iconOnly : '', className ?? ''].join(' ')
+export function Button({
+  variant = 'secondary',
+  icon,
+  iconOnly,
+  busy,
+  className,
+  children,
+  disabled,
+  type = 'button',
+  ...rest
+}: ButtonProps) {
+  const classes = [styles.button, styles[variant], iconOnly ? styles.iconOnly : '', busy ? styles.busy : '', className ?? ''].join(' ')
   return (
-    <button type={type} className={classes} {...rest}>
-      {icon}
+    <button type={type} className={classes} disabled={disabled || busy} aria-busy={busy || undefined} {...rest}>
+      {busy ? <span className={styles.spinner} aria-hidden="true" /> : icon}
       {!iconOnly && children}
     </button>
   )

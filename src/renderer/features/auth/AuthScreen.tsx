@@ -3,8 +3,10 @@ import { useTranslation } from 'react-i18next'
 import type { Session } from '@/api/types'
 import { useAppearance } from '@/theme/appearanceStore'
 import { LogoIcon, MoonIcon, SunIcon } from '@/ui/icons'
-import { AuthArt } from './AuthArt'
 import styles from './AuthScreen.module.css'
+import { AuthHero } from './hero/AuthHero'
+import { MeshBlobs } from './hero/HeroMesh'
+import { launchHero } from './hero/heroes'
 import { LoginForm } from './LoginForm'
 import { RegisterForm, type RegisterValues } from './RegisterForm'
 import { ResetFlow } from './ResetFlow'
@@ -20,18 +22,24 @@ type View =
 /**
  * Log in, create an account and confirm its email, reset the password: one screen, as on
  * mockups 13–20. The left half
- * is the brand panel (the picture there is a placeholder and may change); the form sits right.
- * A narrow window drops the panel and keeps the logo in a top bar.
+ * is the brand panel with one of the animated pictures A, B, C, E, F, a different one each launch;
+ * the form sits right. A narrow window drops the panel and keeps the logo in a top bar.
  */
 export function AuthScreen() {
   const { t } = useTranslation()
   const [view, setView] = useState<View>({ kind: 'login', login: '' })
+  const [hero] = useState(launchHero)
 
   return (
     <div className={styles.screen}>
-      <aside className={styles.brand}>
+      <aside className={styles.brand} data-hero={hero}>
+        {hero === 'mesh' && (
+          <div className={styles.backdrop}>
+            <MeshBlobs />
+          </div>
+        )}
         <Logo />
-        <AuthArt />
+        <AuthHero hero={hero} />
         <div className={styles.tagline}>
           <h2 className={styles.taglineTitle}>{t('auth.tagline')}</h2>
           <p className={styles.taglineBody}>{t('auth.taglineSub')}</p>

@@ -1,0 +1,67 @@
+.deck {
+  position: relative;
+  width: min(300px, 78cqw);
+  height: 190px;
+  /* Room for the fan under and to the right of the top card. */
+  margin: 0 36px 36px 0;
+}
+
+/* Two classes deep, so these win over the shared card's padding, radius and border whatever the CSS
+   order. A card's place in the fan comes from its slot (`--slot`, set from the deck's order), so
+   moving it to another slot glides it there. */
+.deck > .card {
+  position: absolute;
+  inset: 0;
+  padding: 18px;
+  border-radius: 16px;
+  border-color: var(--border);
+  transform: translate(calc(var(--slot) * 10px), calc(var(--slot) * 12px)) rotate(calc(var(--slot) * 2.5deg));
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.4s;
+}
+
+.deck > .card.top {
+  border-color: var(--accent);
+}
+
+/* Past the fan: waiting, invisible, under the last visible card. */
+.deck > .card[data-hidden] {
+  opacity: 0;
+}
+
+/* The top card flying off. */
+.deck > .card.leaving {
+  transform: translate(160px, -20px) rotate(14deg);
+  opacity: 0;
+  transition:
+    transform 0.9s cubic-bezier(0.6, 0, 0.3, 1),
+    opacity 0.9s cubic-bezier(0.6, 0, 0.3, 1);
+}
+
+/* For one frame: moved to its new slot without being seen to travel there. */
+.deck > .card.instant {
+  transition: none;
+}
+
+/* The card about to fade up into the bottom of the fan, starting just below its slot. */
+.deck > .card.below {
+  transform: translate(calc(var(--slot) * 10px), calc(var(--slot) * 12px + 30px)) rotate(calc(var(--slot) * 2.5deg));
+  opacity: 0;
+}
+
+.question {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.topic {
+  margin-top: auto;
+  font-size: 12px;
+  color: var(--muted);
+}

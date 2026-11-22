@@ -1,0 +1,60 @@
+/* What every login picture shares: the stage between the logo and the tagline, a card, a chip. */
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: inline-size;
+}
+
+.card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--shadow-pop);
+}
+
+.accentCard {
+  border-color: var(--accent);
+}
+
+.question {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.chip {
+  align-self: flex-start;
+  padding: 2px 10px;
+  border-radius: var(--radius-chip);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chip[data-status='new'] {
+  color: var(--text-2);
+  background: var(--raised);
+}
+
+.chip[data-status='learning'] {
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 16%, transparent);
+}
+
+.chip[data-status='known'] {
+  color: var(--accent-text);
+  background: var(--accent-soft);
+}

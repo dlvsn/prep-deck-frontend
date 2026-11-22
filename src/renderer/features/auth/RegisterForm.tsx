@@ -109,6 +109,7 @@ export function RegisterForm({
       if (!values.confirm) setServerErrors((s) => ({ ...s, confirm: t('auth.confirmRequired') }))
       return
     }
+    setServerErrors({})
     setBusy(true)
     try {
       const registration = await register(values.email, username, values.password)
@@ -179,7 +180,7 @@ export function RegisterForm({
         onChange={set('confirm')}
       />
 
-      <Button type="submit" variant="primary" className={styles.submit} disabled={busy}>
+      <Button type="submit" variant="primary" className={styles.submit} busy={busy}>
         {busy ? t('auth.creating') : t('auth.createAccount')}
       </Button>
 
