@@ -22,6 +22,30 @@ export interface User {
   name: string
 }
 
+/** Sign-up accepted: a letter with a code went to `email`; the session comes with the code. */
+export interface Registration {
+  email: string
+  codeTtlMinutes: number
+  /** Seconds before another letter may be asked for. */
+  resendAfterSeconds: number
+}
+
+/** `data` of an "auth.emailNotVerified" refusal at log in: a code went to this email. */
+export interface UnconfirmedEmail {
+  email: string
+  resendAfterSeconds: number
+}
+
+/** `data` of an "auth.codeInvalid" refusal. */
+export interface CodeAttempts {
+  attemptsLeft: number
+}
+
+/** `data` of an "auth.resendTooSoon" refusal. */
+export interface RetryAfter {
+  retryAfterSeconds: number
+}
+
 export interface Session {
   accessToken: string
   refreshToken: string
@@ -107,11 +131,22 @@ export interface TopicSharing {
   linkToken: string | null
 }
 
-export interface Settings {
+/** What a user picks, kept on the server so every device they sign in on starts the same. */
+export interface SettingsInput {
   mode: 'dark' | 'light'
   accent: string
   language: 'en' | 'uk'
+  /** The topic opened last; null when none. */
+  lastTopicId: Id | null
 }
+
+/**
+ * The saved settings. Before the first save `updatedAt` is null and so is everything else: the
+ * client then uploads what it has instead of taking the server's.
+ */
+export type Settings =
+  | (SettingsInput & { updatedAt: Instant })
+  | { mode: null; accent: null; language: null; lastTopicId: null; updatedAt: null }
 
 export interface DayProgress {
   reviewed: number

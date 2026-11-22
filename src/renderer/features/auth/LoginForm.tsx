@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { USE_MOCKS } from '@/api'
+import { ApiError } from '@/api/http'
 import { DEMO_LOGIN, DEMO_PASSWORD } from '@/api/mocks/auth'
+import type { UnconfirmedEmail } from '@/api/types'
 import { useSession } from '@/app/session'
 import { Button } from '@/ui/Button'
 import { errorText } from '@/ui/toast'
@@ -12,11 +14,14 @@ import styles from './forms.module.css'
 export function LoginForm({
   initialLogin = '',
   onRegister,
-  onForgot
+  onForgot,
+  onUnconfirmed
 }: {
   initialLogin?: string
   onRegister(): void
   onForgot(login: string): void
+  /** The right password, an email not yet confirmed: a code was sent, the code screen comes next. */
+  onUnconfirmed(unconfirmed: UnconfirmedEmail): void
 }) {
   const { t } = useTranslation()
   const login = useSession((s) => s.login)
@@ -36,6 +41,10 @@ export function LoginForm({
     try {
       await login(values.login, values.password)
     } catch (error) {
+      if (error instanceof ApiError && error.message === 'auth.emailNotVerified' && error.data) {
+        onUnconfirmed(error.data as UnconfirmedEmail)
+        return
+      }
       setErrors({ password: errorText(error) })
       setBusy(false)
     }

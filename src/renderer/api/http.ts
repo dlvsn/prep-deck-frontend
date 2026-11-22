@@ -1,10 +1,15 @@
+import i18n from '@/i18n'
 import type { ApiResponse } from './types'
 
-/** A failed call, carrying the backend's user-facing message. */
+/**
+ * A failed call: the backend's message key, the HTTP status and, for some refusals, the data the
+ * client needs to act on them (attempts left, the email still to confirm).
+ */
 export class ApiError extends Error {
   constructor(
     message: string,
-    readonly status: number
+    readonly status: number,
+    readonly data: unknown = null
   ) {
     super(message)
     this.name = 'ApiError'
@@ -20,12 +25,21 @@ export interface HttpClientOptions {
   onSessionExpired(): void
 }
 
+export interface RequestOptions {
+  /**
+   * false: no access token is sent and a 401 is not answered with a refresh. For the calls that
+   * create or renew a session (log in, refresh), where a 401 means "wrong password", not
+   * "token expired".
+   */
+  auth?: boolean
+}
+
 export interface HttpClient {
-  get<T>(path: string): Promise<T>
-  post<T>(path: string, body?: unknown): Promise<T>
-  put<T>(path: string, body?: unknown): Promise<T>
-  patch<T>(path: string, body?: unknown): Promise<T>
-  delete<T>(path: string): Promise<T>
+  get<T>(path: string, options?: RequestOptions): Promise<T>
+  post<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T>
+  put<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T>
+  patch<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T>
+  delete<T>(path: string, options?: RequestOptions): Promise<T>
 }
 
 /**
@@ -43,9 +57,11 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
     return refreshing
   }
 
-  async function send<T>(method: string, path: string, body?: unknown, retried = false): Promise<T> {
-    const token = options.getAccessToken()
-    const headers: Record<string, string> = { Accept: 'application/json' }
+  async function send<T>(method: string, path: string, body?: unknown, request: RequestOptions = {}, retried = false): Promise<T> {
+    const withAuth = request.auth !== false
+    const token = withAuth ? options.getAccessToken() : null
+    // The language the backend writes letters in.
+    const headers: Record<string, string> = { Accept: 'application/json', 'Accept-Language': i18n.language }
     if (token) headers.Authorization = `Bearer ${token}`
     if (body !== undefined && !(body instanceof FormData)) headers['Content-Type'] = 'application/json'
 
@@ -60,8 +76,8 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
       throw new ApiError('errors.offline', 0)
     }
 
-    if (response.status === 401 && !retried) {
-      if (await refreshOnce()) return send<T>(method, path, body, true)
+    if (response.status === 401 && withAuth && !retried) {
+      if (await refreshOnce()) return send<T>(method, path, body, request, true)
       options.onSessionExpired()
       throw new ApiError('errors.sessionExpired', 401)
     }
@@ -74,14 +90,14 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
     }
 
     if (envelope && envelope.success && response.ok) return envelope.data as T
-    throw new ApiError(envelope?.message || 'errors.generic', response.status)
+    throw new ApiError(envelope?.message || 'errors.generic', response.status, envelope?.data ?? null)
   }
 
   return {
-    get: (path) => send('GET', path),
-    post: (path, body) => send('POST', path, body),
-    put: (path, body) => send('PUT', path, body),
-    patch: (path, body) => send('PATCH', path, body),
-    delete: (path) => send('DELETE', path)
+    get: (path, request) => send('GET', path, undefined, request),
+    post: (path, body, request) => send('POST', path, body, request),
+    put: (path, body, request) => send('PUT', path, body, request),
+    patch: (path, body, request) => send('PATCH', path, body, request),
+    delete: (path, request) => send('DELETE', path, undefined, request)
   }
 }

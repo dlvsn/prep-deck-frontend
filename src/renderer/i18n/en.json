@@ -163,14 +163,35 @@
     "tagline": "Remember what you learn.",
     "taglineSub": "Cards, nested topics and spaced repetition — prepare for interviews, exams and languages.",
     "toLight": "Switch to light theme",
-    "toDark": "Switch to dark theme"
+    "toDark": "Switch to dark theme",
+    "usernameInvalid": "3–32 characters: letters, digits, dots, dashes and underscores.",
+    "back": "Back",
+    "verifyTitle": "Confirm your email",
+    "verifySub": "We sent a 6-digit code to {{email}}. Enter it to finish creating your account.",
+    "verificationCode": "Verification code",
+    "confirm": "Confirm",
+    "wrongEmail": "Wrong email?",
+    "change": "Change it",
+    "codeWrong_one": "Wrong code. {{count}} attempt left.",
+    "codeWrong_other": "Wrong code. {{count}} attempts left.",
+    "codeAttemptsExhausted": "Too many wrong tries. Ask for a new code.",
+    "codeExpired": "The code is no longer valid. Ask for a new one.",
+    "emailAlreadyVerified": "This email is already confirmed. Log in.",
+    "emailNotVerified": "Confirm your email first.",
+    "resendTooSoon": "Wait a little before asking again.",
+    "verifiedTitle": "Email confirmed",
+    "verifiedSub": "Your account is ready. Let's create your first topic.",
+    "openApp": "Open Prep Deck"
   },
   "errors": {
     "generic": "Something went wrong",
     "offline": "No connection",
     "sessionExpired": "Your session has ended. Log in again.",
     "noAccess": "You no longer have access",
-    "forbidden": "You can't do that here"
+    "forbidden": "You can't do that here",
+    "badRequest": "The request could not be processed.",
+    "notFound": "Not found.",
+    "notAvailable": "Not available yet."
   },
   "common": {
     "close": "Close",

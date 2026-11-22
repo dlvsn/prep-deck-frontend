@@ -13,14 +13,15 @@ async function respond<T>(produce: () => T): Promise<T> {
   return produce()
 }
 
-const fail = (message: string, status = 400): never => {
-  throw new ApiError(message, status)
+const fail = (message: string, status = 400, data: unknown = null): never => {
+  throw new ApiError(message, status, data)
 }
 
 const DAILY_NEW_LIMIT = 20
 const DAY_MS = 24 * 60 * 60 * 1000
 
-let settings: Settings = { mode: 'dark', accent: 'mint', language: 'en' }
+// One set for the whole mock (it has one data set); nothing saved until the first update.
+let settings: Settings = { mode: null, accent: null, language: null, lastTopicId: null, updatedAt: null }
 
 // ---------------------------------------------------------------- helpers
 
@@ -320,7 +321,7 @@ export function createMockRepositories(): Repositories {
       get: () => respond(() => settings),
       update: (value) =>
         respond(() => {
-          settings = { ...value }
+          settings = { ...value, updatedAt: new Date().toISOString() }
           return settings
         })
     }

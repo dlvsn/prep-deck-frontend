@@ -132,3 +132,26 @@
   font-family: var(--font-mono);
   color: var(--text-2);
 }
+
+.codeField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+/* "Email confirmed": a round accent mark above the heading. */
+.doneMark {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}

@@ -4,12 +4,14 @@ import type {
   CardImage,
   DayProgress,
   Grade,
+  Registration,
   Id,
   PracticeItem,
   PracticeScope,
   Role,
   Session,
   Settings,
+  SettingsInput,
   Topic,
   TopicSharing,
   User
@@ -21,12 +23,27 @@ import type {
  */
 
 export interface AuthRepository {
-  /** Rejects with "auth.invalidCredentials" when the login or the password is wrong. */
+  /**
+   * Rejects with "auth.invalidCredentials" when the login or the password is wrong, and with
+   * "auth.emailNotVerified" (data: UnconfirmedEmail) when the right password meets an email not
+   * yet confirmed: a code has just been sent to it.
+   */
   login(login: string, password: string): Promise<Session>
-  /** Rejects with "auth.emailTaken" or "auth.usernameTaken" (a field error, shown under it). */
-  register(email: string, username: string, password: string): Promise<Session>
+  /**
+   * Creates the account unconfirmed and emails a code. Rejects with "auth.emailTaken" or
+   * "auth.usernameTaken" (a field error, shown under it).
+   */
+  register(email: string, username: string, password: string): Promise<Registration>
+  /**
+   * Confirms the email with the code and opens the first session. Rejects with
+   * "auth.codeInvalid" (data: CodeAttempts), "auth.codeAttemptsExhausted" or "auth.codeExpired".
+   */
+  verifyEmail(email: string, code: string): Promise<Session>
+  /** A new letter; rejects with "auth.resendTooSoon" (data: RetryAfter) inside the cooldown. */
+  resendVerification(email: string): Promise<void>
   refresh(refreshToken: string): Promise<Session>
-  logout(): Promise<void>
+  /** Ends the session the refresh token belongs to. */
+  logout(refreshToken: string): Promise<void>
   me(): Promise<User>
   /** Whether a username is still free, for the hint under the field while it is typed. */
   isUsernameFree(username: string): Promise<boolean>
@@ -90,7 +107,8 @@ export interface SharesRepository {
 
 export interface SettingsRepository {
   get(): Promise<Settings>
-  update(settings: Settings): Promise<Settings>
+  /** Replaces the whole set. */
+  update(settings: SettingsInput): Promise<Settings>
 }
 
 export interface Repositories {

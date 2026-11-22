@@ -22,5 +22,6 @@ Work goes stage by stage as the spec's «Етапи» section lists them. Window
 - CSS Modules per component; animate only `transform` and `opacity` (plus theme colours).
 - The backend answers every call with `{ success, message, data }`; `api/http.ts` unwraps it.
   Each repository is an interface in `api/repositories.ts` with a mock in `api/mocks`
-  (`VITE_USE_MOCKS=true`), so the client runs without a backend.
+  (`VITE_USE_MOCKS=true`), so the client runs without a backend. With `false`, the areas the
+  backend serves (`api/http/`, wired in `api/index.ts`) go over HTTP and the rest stay mocked.
 - Icons are in-house SVGs in `ui/icons.tsx`, drawn in the Lucide style.

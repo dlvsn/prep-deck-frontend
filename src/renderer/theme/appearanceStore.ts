@@ -22,7 +22,7 @@ const initial = (): Pick<AppearanceState, 'mode' | 'accent' | 'language'> => ({
 
 /**
  * The user's look and language, kept in localStorage under the key theme-boot.js reads before
- * the first paint. Syncing it into the user's server-side settings comes with the backend.
+ * the first paint. app/settingsSync.ts keeps it in step with the user's settings on the server.
  */
 export const useAppearance = create<AppearanceState>()(
   persist(

@@ -10,6 +10,8 @@ import { AppearanceSync } from './AppearanceSync'
 import { Placeholder } from './Placeholder'
 import { platform } from './platform'
 import { onSessionEnd, useSession } from './session'
+// Side effect: syncs theme, accent, language and the last topic with the server per user.
+import './settingsSync'
 import { Shell } from './Shell'
 
 const queryClient = new QueryClient({

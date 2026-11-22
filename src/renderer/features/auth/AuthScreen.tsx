@@ -1,17 +1,25 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { Session } from '@/api/types'
 import { useAppearance } from '@/theme/appearanceStore'
 import { LogoIcon, MoonIcon, SunIcon } from '@/ui/icons'
 import { AuthArt } from './AuthArt'
 import styles from './AuthScreen.module.css'
 import { LoginForm } from './LoginForm'
-import { RegisterForm } from './RegisterForm'
+import { RegisterForm, type RegisterValues } from './RegisterForm'
 import { ResetFlow } from './ResetFlow'
+import { EmailVerified, VerifyEmail } from './VerifyEmail'
 
-type View = { kind: 'login'; login: string } | { kind: 'register' } | { kind: 'reset'; email: string }
+type View =
+  | { kind: 'login'; login: string }
+  | { kind: 'register'; values?: RegisterValues }
+  | { kind: 'verify'; email: string; resendAfterSeconds: number; values?: RegisterValues }
+  | { kind: 'verified'; session: Session }
+  | { kind: 'reset'; email: string }
 
 /**
- * Log in, create an account, reset the password: one screen, as on mockups 13–18. The left half
+ * Log in, create an account and confirm its email, reset the password: one screen, as on
+ * mockups 13–20. The left half
  * is the brand panel (the picture there is a placeholder and may change); the form sits right.
  * A narrow window drops the panel and keeps the logo in a top bar.
  */
@@ -46,9 +54,32 @@ export function AuthScreen() {
                 initialLogin={view.login}
                 onRegister={() => setView({ kind: 'register' })}
                 onForgot={(login) => setView({ kind: 'reset', email: login })}
+                onUnconfirmed={({ email, resendAfterSeconds }) => setView({ kind: 'verify', email, resendAfterSeconds })}
               />
             )}
-            {view.kind === 'register' && <RegisterForm onLogin={() => setView({ kind: 'login', login: '' })} />}
+            {view.kind === 'register' && (
+              <RegisterForm
+                initial={view.values}
+                onLogin={() => setView({ kind: 'login', login: '' })}
+                onRegistered={(registration, values) =>
+                  setView({
+                    kind: 'verify',
+                    email: registration.email,
+                    resendAfterSeconds: registration.resendAfterSeconds,
+                    values
+                  })
+                }
+              />
+            )}
+            {view.kind === 'verify' && (
+              <VerifyEmail
+                email={view.email}
+                resendAfterSeconds={view.resendAfterSeconds}
+                onBack={() => setView({ kind: 'register', values: view.values ?? { email: view.email, username: '' } })}
+                onVerified={(session) => setView({ kind: 'verified', session })}
+              />
+            )}
+            {view.kind === 'verified' && <EmailVerified session={view.session} />}
             {view.kind === 'reset' && (
               <ResetFlow initialEmail={view.email} onDone={(email) => setView({ kind: 'login', login: email ?? '' })} />
             )}

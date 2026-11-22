@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '@/api'
 import { ApiError } from '@/api/http'
+import type { Registration } from '@/api/types'
 import { useSession } from '@/app/session'
 import { Button } from '@/ui/Button'
 import { errorText } from '@/ui/toast'
@@ -16,10 +17,30 @@ type Errors = Partial<Record<'email' | 'username' | 'password' | 'confirm', stri
  * Screen 14: email, username, password with its strength, and the password again. Problems show
  * under their field: a format once the field is left, a taken username and a mismatch as typed.
  */
-export function RegisterForm({ onLogin }: { onLogin(): void }) {
+export interface RegisterValues {
+  email: string
+  username: string
+}
+
+export function RegisterForm({
+  initial,
+  onLogin,
+  onRegistered
+}: {
+  /** What was typed before going on to the code screen and coming back ("Change it"). */
+  initial?: RegisterValues
+  onLogin(): void
+  /** The account waits for its code: the code screen comes next. */
+  onRegistered(registration: Registration, values: RegisterValues): void
+}) {
   const { t } = useTranslation()
   const register = useSession((s) => s.register)
-  const [values, setValues] = useState({ email: '', username: '', password: '', confirm: '' })
+  const [values, setValues] = useState({
+    email: initial?.email ?? '',
+    username: initial?.username ?? '',
+    password: '',
+    confirm: ''
+  })
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [serverErrors, setServerErrors] = useState<Errors>({})
   const [availability, setAvailability] = useState<Availability>('unknown')
@@ -63,7 +84,9 @@ export function RegisterForm({ onLogin }: { onLogin(): void }) {
         : touched.username && username.length < 3
           ? t('auth.usernameShort')
           : undefined),
-    password: touched.password && values.password && !meetsPasswordRules(values.password) ? t('auth.passwordRules') : undefined,
+    password:
+      serverErrors.password ??
+      (touched.password && values.password && !meetsPasswordRules(values.password) ? t('auth.passwordRules') : undefined),
     confirm: values.confirm && values.confirm !== values.password ? t('auth.passwordsDiffer') : undefined
   }
 
@@ -88,11 +111,14 @@ export function RegisterForm({ onLogin }: { onLogin(): void }) {
     }
     setBusy(true)
     try {
-      await register(values.email, username, values.password)
+      const registration = await register(values.email, username, values.password)
+      onRegistered(registration, { email: values.email, username: values.username })
     } catch (error) {
+      // The server's key says which field it is about: auth.emailTaken, auth.usernameInvalid…
       const code = error instanceof ApiError ? error.message : ''
-      if (code === 'auth.emailTaken') setServerErrors({ email: errorText(error) })
-      else if (code === 'auth.usernameTaken') setServerErrors({ username: errorText(error) })
+      if (code.startsWith('auth.email')) setServerErrors({ email: errorText(error) })
+      else if (code.startsWith('auth.username')) setServerErrors({ username: errorText(error) })
+      else if (code.startsWith('auth.password')) setServerErrors({ password: errorText(error) })
       else setServerErrors({ confirm: errorText(error) })
       setBusy(false)
     }

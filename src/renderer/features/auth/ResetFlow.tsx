@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { api, USE_MOCKS } from '@/api'
-import { DEMO_RESET_CODE } from '@/api/mocks/auth'
+import { DEMO_CODE } from '@/api/mocks/auth'
 import { Button } from '@/ui/Button'
 import { ArrowLeftIcon } from '@/ui/icons'
 import { errorText, toastError, useToasts } from '@/ui/toast'
@@ -167,7 +167,7 @@ function CodeStep({ email, onVerified }: { email: string; onVerified(token: stri
       </p>
       {USE_MOCKS && (
         <p className={styles.demo}>
-          <Trans i18nKey="auth.demoCode" values={{ code: DEMO_RESET_CODE }} components={{ code: <code /> }} />
+          <Trans i18nKey="auth.demoCode" values={{ code: DEMO_CODE }} components={{ code: <code /> }} />
         </p>
       )}
     </form>
