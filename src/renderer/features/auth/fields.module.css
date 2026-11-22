@@ -1,0 +1,219 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 46px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-button);
+  background: var(--card);
+  transition: border-color 150ms var(--ease), box-shadow 150ms var(--ease);
+}
+
+.control:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.invalid,
+.invalid:focus-within {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
+.check {
+  display: grid;
+  place-items: center;
+  padding-right: 14px;
+  color: var(--accent-text);
+}
+
+.eye {
+  width: 40px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 0 var(--radius-button) var(--radius-button) 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.eye:hover {
+  color: var(--text);
+}
+
+.eye:focus-visible {
+  outline-offset: -3px;
+}
+
+.error,
+.success {
+  margin: 0;
+  font-size: 13.5px;
+}
+
+.error {
+  color: var(--danger);
+}
+
+.success {
+  color: var(--accent-text);
+}
+
+/* ---- strength meter */
+
+.strength {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.segments {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.segment,
+.segmentOn {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--raised);
+  transition: background-color 200ms var(--ease);
+}
+
+.strength[data-strength='1'] .segmentOn {
+  background: var(--danger);
+}
+
+.strength[data-strength='2'] .segmentOn {
+  background: var(--amber);
+}
+
+.strength[data-strength='3'] .segmentOn,
+.strength[data-strength='4'] .segmentOn {
+  background: var(--accent);
+}
+
+.strengthLabel {
+  min-width: 64px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.strength[data-strength='1'] .strengthLabel {
+  color: var(--danger);
+}
+
+.strength[data-strength='2'] .strengthLabel {
+  color: var(--amber);
+}
+
+.strength[data-strength='3'] .strengthLabel,
+.strength[data-strength='4'] .strengthLabel {
+  color: var(--accent-text);
+}
+
+/* ---- code boxes */
+
+.code {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.codeBox {
+  height: 56px;
+  min-width: 0;
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 22px;
+  font-weight: 500;
+  text-align: center;
+  outline: none;
+  transition: border-color 150ms var(--ease), box-shadow 150ms var(--ease);
+}
+
+.codeBox:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ---- step dots */
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot,
+.dotDone,
+.dotActive {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--border-2);
+  transition: width 250ms var(--ease), background-color 250ms var(--ease);
+}
+
+.dot,
+.dotDone {
+  width: 7px;
+}
+
+.dotDone {
+  background: var(--accent);
+}
+
+.dotActive {
+  width: 28px;
+  background: var(--accent);
+}

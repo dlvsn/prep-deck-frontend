@@ -106,4 +106,9 @@
   --rail-width: 72px;
   --rail-width-compact: 56px;
   --bottom-bar-height: 60px;
+  --titlebar-offset: 0px;
+}
+
+:root[data-platform='electron'] {
+  --titlebar-offset: var(--titlebar-height);
 }

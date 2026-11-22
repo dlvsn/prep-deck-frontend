@@ -71,6 +71,67 @@ export const LogOutIcon = icon(
 
 export const CheckIcon = icon(<path d="M20 6 9 17l-5-5" />)
 
+export const PlusIcon = icon(<path d="M12 5v14M5 12h14" />)
+export const ChevronRightIcon = icon(<path d="m9 18 6-6-6-6" />)
+export const MoreIcon = icon(
+  <>
+    <circle cx="5" cy="12" r="1" fill="currentColor" />
+    <circle cx="12" cy="12" r="1" fill="currentColor" />
+    <circle cx="19" cy="12" r="1" fill="currentColor" />
+  </>
+)
+export const PencilIcon = icon(
+  <path d="M21.17 6.81a2.83 2.83 0 0 0-4-4L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5zM15 5l4 4" />
+)
+export const FolderPlusIcon = icon(
+  <>
+    <path d="M12 10v6M9 13h6" />
+    <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+  </>
+)
+export const MoveIcon = icon(
+  <>
+    <path d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2" />
+    <path d="m8 16 3-3-3-3M2 13h9" />
+  </>
+)
+export const TrashIcon = icon(
+  <>
+    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <path d="M10 11v6M14 11v6" />
+  </>
+)
+export const ShareIcon = icon(
+  <>
+    <circle cx="18" cy="5" r="3" />
+    <circle cx="6" cy="12" r="3" />
+    <circle cx="18" cy="19" r="3" />
+    <path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98" />
+  </>
+)
+export const EyeIcon = icon(
+  <>
+    <path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0" />
+    <circle cx="12" cy="12" r="3" />
+  </>
+)
+export const EyeOffIcon = icon(
+  <>
+    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c4.29 0 7.97 2.6 9.94 6.65a1 1 0 0 1 0 .7 10.8 10.8 0 0 1-1.44 2.49M14.08 14.16a3 3 0 0 1-4.24-4.24M17.48 17.5a10.75 10.75 0 0 1-15.42-5.15 1 1 0 0 1 0-.7 10.8 10.8 0 0 1 4.45-5.14" />
+    <path d="m2 2 20 20" />
+  </>
+)
+export const SunIcon = icon(
+  <>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+  </>
+)
+export const MoonIcon = icon(<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />)
+
+export const MenuIcon = icon(<path d="M4 6h16M4 12h16M4 18h16" />)
+export const ArrowLeftIcon = icon(<path d="m12 19-7-7 7-7M19 12H5" />)
+
 export const MinimizeIcon = icon(<path d="M5 12h14" />)
 export const MaximizeIcon = icon(<rect x="5" y="5" width="14" height="14" rx="1.5" />)
 export const RestoreIcon = icon(

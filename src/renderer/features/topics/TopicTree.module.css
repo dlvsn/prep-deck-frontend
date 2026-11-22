@@ -1,0 +1,213 @@
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px 8px;
+}
+
+.row {
+  position: relative;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 6px;
+  border-radius: 10px;
+  color: var(--text-2);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 150ms var(--ease), opacity 150ms var(--ease);
+}
+
+.row:hover {
+  background: var(--raised);
+}
+
+.row:focus-visible {
+  outline-offset: -2px;
+}
+
+.root {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.selected,
+.selected:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.enter {
+  animation: slide-right 250ms var(--ease);
+}
+
+@keyframes slide-right {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.chevron,
+.chevronSpace {
+  flex: none;
+  width: 22px;
+  height: 22px;
+}
+
+.chevron {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: transform 200ms var(--ease);
+}
+
+.chevron:hover {
+  color: var(--text);
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 14.5px;
+}
+
+.unseenDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.meta {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+}
+
+.sharedIcon {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.due {
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.count {
+  min-width: 20px;
+  text-align: right;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.more {
+  width: 0;
+  height: 26px;
+  margin-left: -8px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 150ms var(--ease);
+}
+
+.row:hover .more,
+.row:focus-within .more {
+  width: 26px;
+  margin-left: 0;
+  opacity: 1;
+}
+
+.more:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+  outline: none;
+}
+
+/* ---- drag and drop */
+
+.dragging {
+  opacity: 0.45;
+}
+
+.dropBefore::before,
+.dropAfter::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.dropBefore::before {
+  top: -2px;
+}
+
+.dropAfter::after {
+  bottom: -2px;
+}
+
+.dropInside {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.dropTail {
+  flex: 1;
+  min-height: 24px;
+}
+
+.dropTailActive {
+  min-height: 48px;
+}

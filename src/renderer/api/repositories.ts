@@ -21,11 +21,20 @@ import type {
  */
 
 export interface AuthRepository {
+  /** Rejects with "auth.invalidCredentials" when the login or the password is wrong. */
   login(login: string, password: string): Promise<Session>
+  /** Rejects with "auth.emailTaken" or "auth.usernameTaken" (a field error, shown under it). */
   register(email: string, username: string, password: string): Promise<Session>
   refresh(refreshToken: string): Promise<Session>
   logout(): Promise<void>
   me(): Promise<User>
+  /** Whether a username is still free, for the hint under the field while it is typed. */
+  isUsernameFree(username: string): Promise<boolean>
+  /** Sends a 6-digit code by email. Answers the same whether or not the email is known. */
+  requestPasswordReset(email: string): Promise<void>
+  /** Exchanges the code for a one-time reset token; rejects with "auth.codeInvalid". */
+  verifyResetCode(email: string, code: string): Promise<string>
+  resetPassword(resetToken: string, password: string): Promise<void>
 }
 
 export interface TopicsRepository {

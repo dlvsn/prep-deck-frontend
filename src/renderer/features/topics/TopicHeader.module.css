@@ -1,0 +1,82 @@
+.header {
+  padding: 28px 40px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  color: var(--muted);
+  font-size: 14px;
+  min-width: 0;
+}
+
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.sep {
+  margin: 0 6px;
+}
+
+.crumbLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.crumbLink:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.title,
+.titleInput {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.title {
+  overflow-wrap: anywhere;
+  cursor: default;
+}
+
+.titleInput {
+  width: 100%;
+  max-width: 560px;
+  padding: 0 8px;
+  margin-left: -9px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--card);
+  outline: none;
+}
+
+.summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+@media (max-width: 719px) {
+  .header {
+    padding: 16px;
+  }
+
+  .title,
+  .titleInput {
+    font-size: 22px;
+  }
+}

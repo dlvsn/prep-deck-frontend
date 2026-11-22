@@ -1,0 +1,97 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--scrim);
+  animation: fade-in 200ms var(--ease);
+}
+
+.dialog {
+  max-width: 100%;
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-modal);
+  box-shadow: var(--shadow-pop);
+  animation: pop-in 320ms var(--ease);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 22px 24px 12px;
+}
+
+.titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 20px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.close {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--raised);
+  color: var(--text);
+}
+
+.body {
+  padding: 4px 24px 8px;
+  overflow: auto;
+  color: var(--text-2);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 24px 22px;
+}
+
+@media (max-width: 719px) {
+  .scrim {
+    padding: 0;
+    place-items: end stretch;
+  }
+
+  .dialog {
+    width: 100% !important;
+    max-height: 100vh;
+    border-radius: var(--radius-modal) var(--radius-modal) 0 0;
+    animation: sheet-up 280ms var(--ease);
+  }
+}
+
+@keyframes sheet-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}

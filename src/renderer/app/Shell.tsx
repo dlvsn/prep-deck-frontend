@@ -6,8 +6,7 @@ import { api } from '@/api'
 import { AppearancePanel } from '@/features/settings/AppearancePanel'
 import { LogOutIcon, LogoIcon, PaletteIcon, PracticeIcon, SharedIcon, TopicsIcon } from '@/ui/icons'
 import { Popover } from '@/ui/Popover'
-import { TitleBar } from '@/ui/TitleBar'
-import { platform } from './platform'
+import { useSession } from './session'
 import styles from './Shell.module.css'
 import { useLayoutMode } from './useLayoutMode'
 
@@ -18,8 +17,8 @@ const SECTIONS = [
 ] as const
 
 /**
- * The frame every screen sits in: title bar (desktop only), the rail at the left, or a bottom
- * bar when the window is narrow, and the routed screen in the middle.
+ * The signed-in app: the rail at the left, or a bottom bar when the window is narrow, and the
+ * routed screen in the middle. The title bar above it belongs to the App frame.
  */
 export function Shell() {
   const { t } = useTranslation()
@@ -32,18 +31,15 @@ export function Shell() {
   const [appearanceOpen, setAppearanceOpen] = useState(false)
   const closeAppearance = useCallback(() => setAppearanceOpen(false), [])
 
-  const me = useQuery({ queryKey: ['me'], queryFn: () => api.auth.me() })
+  const user = useSession((s) => s.user)
+  const endSession = useSession((s) => s.logout)
   const shared = useQuery({ queryKey: ['topics', 'shared'], queryFn: () => api.topics.listShared() })
   const invites = shared.data?.filter((topic) => topic.unseen && topic.parentId === null).length ?? 0
-  const initial = me.data?.name.charAt(0).toUpperCase() ?? ''
-
-  // Log out arrives with the login screens (stage 2); until then the button is shown but inert.
-  const logout = undefined
+  const initial = user?.name.charAt(0).toUpperCase() ?? ''
+  const logout = (): void => void endSession()
 
   return (
-    <div className={styles.app}>
-      {platform.windowControls && <TitleBar controls={platform.windowControls} />}
-
+    <>
       <div className={narrow ? styles.bodyNarrow : styles.body}>
         {!narrow && (
           <nav className={iconsOnly ? `${styles.rail} ${styles.railCompact}` : styles.rail} aria-label={t('app.name')}>
@@ -87,7 +83,7 @@ export function Shell() {
                   <PaletteIcon size={22} />
                 </span>
               </button>
-              <span className={styles.avatar} title={me.data?.name} aria-label={t('auth.account')}>
+              <span className={styles.avatar} title={user?.name} aria-label={t('auth.account')}>
                 {initial}
               </span>
               <button
@@ -148,6 +144,6 @@ export function Shell() {
       >
         <AppearancePanel onLogout={narrow ? logout : undefined} />
       </Popover>
-    </div>
+    </>
   )
 }

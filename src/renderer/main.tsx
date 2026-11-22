@@ -12,9 +12,12 @@ import './i18n'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './app/App'
+import { platform } from './app/platform'
 import { trackResizing } from './app/useLayoutMode'
 
 trackResizing()
+// Lets CSS leave room for our own title bar, which only the desktop app has.
+document.documentElement.dataset.platform = platform.kind
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

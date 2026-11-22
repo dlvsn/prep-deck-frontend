@@ -1,0 +1,168 @@
+.page {
+  height: 100%;
+  display: flex;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- tree panel */
+
+.panel {
+  flex: none;
+  width: 264px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+}
+
+@media (max-width: 1279px) {
+  .panel {
+    width: 220px;
+  }
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 16px 10px 20px;
+}
+
+.panelTitle {
+  flex: 1;
+  font-size: 18px;
+  color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panelBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.treeEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 20px;
+  color: var(--muted);
+}
+
+.treeEmpty p {
+  margin: 0;
+}
+
+.skeleton {
+  margin: 8px 16px;
+  height: 180px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--raised), var(--border), var(--raised));
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+.today {
+  padding: 14px 20px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.todayText {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 8px;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.todayBar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--raised);
+  overflow: hidden;
+}
+
+.todayBar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  transition: transform 400ms var(--ease);
+}
+
+/* ---------------------------------------------------------------- drawer (compact, narrow) */
+
+.scrim {
+  position: fixed;
+  inset: var(--titlebar-offset, 0) 0 0 0;
+  z-index: 40;
+  background: var(--scrim);
+  animation: fade-in 200ms var(--ease);
+}
+
+/* Compact: the drawer opens beside the icon rail, as on mockup 8; the scrim still dims the rail. */
+.scrimBesideRail .drawer {
+  margin-left: var(--rail-width-compact);
+}
+
+.drawer {
+  width: min(320px, calc(100vw - 48px));
+  box-shadow: var(--shadow-pop);
+  animation: drawer-in 260ms var(--ease);
+}
+
+@keyframes drawer-in {
+  from { opacity: 0; transform: translateX(-24px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------------------------------------------------------------- content */
+
+.content {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawerBar {
+  display: flex;
+  padding: 10px 12px 0;
+}
+
+.drawerBar + header {
+  padding-top: 8px;
+}
+
+.cardsSoon {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.cardsSoon p {
+  margin: 0;
+  max-width: 44ch;
+}

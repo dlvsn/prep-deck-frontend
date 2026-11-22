@@ -1,6 +1,7 @@
 import { ApiError } from '../http'
 import type { Repositories } from '../repositories'
-import type { CardDraft, Id, Role, Session, Settings, Topic, TopicSharing } from '../types'
+import type { CardDraft, Id, Role, Settings, Topic, TopicSharing } from '../types'
+import { createMockAuth } from './auth'
 import { db, isDue, newId, toCard, users, type StoredCard } from './db'
 import { next, nextIntervals, statusOf } from './srs'
 
@@ -104,35 +105,11 @@ function copyTree(sourceId: Id, parentId: Id | null, order: number): Id {
   return id
 }
 
-const fakeSession = (): Session => ({
-  accessToken: newId('access'),
-  refreshToken: newId('refresh'),
-  user: users.me
-})
-
 // ---------------------------------------------------------------- repositories
 
 export function createMockRepositories(): Repositories {
   return {
-    auth: {
-      // Any credentials open the demo account; real checks arrive with the backend.
-      login: (login, password) =>
-        respond(() => {
-          if (!login.trim()) fail('auth.loginRequired')
-          if (!password) fail('auth.passwordRequired')
-          return fakeSession()
-        }),
-      register: (email, username, password) =>
-        respond(() => {
-          if (!email.includes('@')) fail('auth.emailInvalid')
-          if (!username.trim()) fail('auth.usernameRequired')
-          if (password.length < 8) fail('auth.passwordTooShort')
-          return fakeSession()
-        }),
-      refresh: () => respond(fakeSession),
-      logout: () => respond(() => undefined),
-      me: () => respond(() => users.me)
-    },
+    auth: createMockAuth(respond, fail),
 
     topics: {
       listMine: () =>
