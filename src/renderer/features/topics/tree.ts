@@ -69,6 +69,28 @@ export function pathTo(tree: TopicTree, id: Id): TopicNode[] {
   return path
 }
 
+/**
+ * The rows a search leaves, top to bottom: every topic whose name contains the query (any case),
+ * with its parents for context, whether or not they are expanded.
+ */
+export function matchingRows(tree: TopicTree, query: string): TopicNode[] {
+  const needle = query.trim().toLowerCase()
+  const keep = new Set<Id>()
+  for (const node of tree.byId.values()) {
+    if (node.topic.title.toLowerCase().includes(needle)) pathTo(tree, node.topic.id).forEach((n) => keep.add(n.topic.id))
+  }
+  const rows: TopicNode[] = []
+  const walk = (nodes: TopicNode[]): void => {
+    for (const node of nodes) {
+      if (!keep.has(node.topic.id)) continue
+      rows.push(node)
+      walk(node.children)
+    }
+  }
+  walk(tree.roots)
+  return rows
+}
+
 /** The rows on screen, top to bottom: roots and the children of every expanded topic. */
 export function visibleRows(tree: TopicTree, expanded: ReadonlySet<Id>): TopicNode[] {
   const rows: TopicNode[] = []

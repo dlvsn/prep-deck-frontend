@@ -39,8 +39,19 @@
     "sharedHint": "Shared with others",
     "breadcrumbs": "Topic path",
     "openTree": "Show topics",
-    "empty": "No topics yet. Create the first one to start adding cards.",
     "pick": "Pick a topic on the left.",
+    "search": "Search",
+    "searchShortcut": "Ctrl K",
+    "noMatch": "No topics match",
+    "first": {
+      "title": "Create your first topic",
+      "body": "Topics hold your cards. Nest them as deep as you like — Java → JVM → Garbage collection.",
+      "steps": {
+        "create": { "title": "Create a topic", "text": "Interview prep, a language, an exam — anything." },
+        "cards": { "title": "Add cards", "text": "A question, an answer in Markdown and up to 5 images." },
+        "practice": { "title": "Practice daily", "text": "Spaced repetition brings each card back right before you forget it." }
+      }
+    },
     "titleRequired": "Give the topic a name",
     "moveIntoItself": "A topic can't go inside itself",
     "cardsCount_one": "{{count}} card",

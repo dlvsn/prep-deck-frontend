@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import type { Id } from '@/api/types'
@@ -6,7 +6,9 @@ import { useLayoutMode } from '@/app/useLayoutMode'
 import { CardModal } from '@/features/cards/CardModal'
 import { CardsSection } from '@/features/cards/CardsSection'
 import { Button } from '@/ui/Button'
-import { CloseIcon, MenuIcon, PlusIcon } from '@/ui/icons'
+import { anyLayerOpen } from '@/ui/dialogLayer'
+import { CloseIcon, MenuIcon, PlusIcon, SearchIcon } from '@/ui/icons'
+import { EmptyTopics } from './EmptyTopics'
 import { pathTo, type TopicNode } from './tree'
 import { TopicHeader } from './TopicHeader'
 import styles from './TopicsPage.module.css'
@@ -29,8 +31,15 @@ export function TopicsPage() {
   const { lastTopicId, setLastTopic, expand } = useTopicsUi()
   const [creatingRoot, setCreatingRoot] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
+  const panelRef = useRef<HTMLElement>(null)
+  const focusSearchOnOpen = useRef(false)
 
   const node = topicId && tree ? tree.byId.get(topicId) : undefined
+  // Nothing to search before the first topic: no field then, and no query left over.
+  const hasTopics = (tree?.roots.length ?? 0) > 0
+  const activeQuery = hasTopics ? query : ''
 
   useEffect(() => {
     if (!node || !tree) return
@@ -53,6 +62,49 @@ export function TopicsPage() {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [drawerOpen])
+
+  // Ctrl+K (by key position, so it works in any layout) goes to the search, opening the drawer
+  // first on a compact or narrow window.
+  useEffect(() => {
+    if (!hasTopics) return
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.code !== 'KeyK' || !e.ctrlKey || e.altKey || e.shiftKey || e.metaKey || anyLayerOpen()) return
+      e.preventDefault()
+      if (asDrawer && !drawerOpen) {
+        focusSearchOnOpen.current = true
+        setDrawerOpen(true)
+      } else {
+        searchRef.current?.focus()
+        searchRef.current?.select()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [hasTopics, asDrawer, drawerOpen])
+
+  useEffect(() => {
+    if (!drawerOpen || !focusSearchOnOpen.current) return
+    focusSearchOnOpen.current = false
+    searchRef.current?.focus()
+  }, [drawerOpen])
+
+  const startCreatingRoot = (): void => {
+    setQuery('')
+    setCreatingRoot(true)
+    if (asDrawer) setDrawerOpen(true)
+  }
+
+  const onSearchKey = (e: ReactKeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'Escape' && query) {
+      // The first Escape clears the search; the next one closes the drawer.
+      e.preventDefault()
+      e.stopPropagation()
+      setQuery('')
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      panelRef.current?.querySelector<HTMLElement>('[role=treeitem]')?.focus()
+    }
+  }
 
   const open = useCallback(
     (id: Id) => {
@@ -78,7 +130,11 @@ export function TopicsPage() {
   }
 
   const panel = (
-    <aside className={asDrawer ? `${styles.panel} ${styles.drawer}` : styles.panel} aria-label={t('nav.myTopics')}>
+    <aside
+      ref={panelRef}
+      className={asDrawer ? `${styles.panel} ${styles.drawer}` : styles.panel}
+      aria-label={t('nav.myTopics')}
+    >
       <div className={styles.panelHeader}>
         <h2 className={styles.panelTitle}>{t('nav.myTopics')}</h2>
         <Button
@@ -86,7 +142,7 @@ export function TopicsPage() {
           icon={<PlusIcon size={18} />}
           aria-label={t('topics.new')}
           title={t('topics.new')}
-          onClick={() => setCreatingRoot(true)}
+          onClick={startCreatingRoot}
         />
         {asDrawer && (
           <Button
@@ -99,6 +155,21 @@ export function TopicsPage() {
         )}
       </div>
 
+      {hasTopics && (
+        <label className={styles.search}>
+          <SearchIcon size={15} />
+          <input
+            ref={searchRef}
+            value={query}
+            placeholder={t('topics.search')}
+            aria-label={t('topics.search')}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={onSearchKey}
+          />
+          <kbd className={styles.shortcut}>{t('topics.searchShortcut')}</kbd>
+        </label>
+      )}
+
       <div className={styles.panelBody}>
         {tree && (
           <TopicTree
@@ -108,17 +179,10 @@ export function TopicsPage() {
             onDeleted={onDeleted}
             creatingRoot={creatingRoot}
             onCreatingRootDone={() => setCreatingRoot(false)}
+            query={activeQuery}
+            onClearQuery={() => setQuery('')}
           />
-        )}
-        {tree && tree.roots.length === 0 && !creatingRoot && (
-          <div className={styles.treeEmpty}>
-            <p>{t('topics.empty')}</p>
-            <Button variant="primary" icon={<PlusIcon size={16} />} onClick={() => setCreatingRoot(true)}>
-              {t('topics.new')}
-            </Button>
-          </div>
-        )}
-        {isLoading && <div className={styles.skeleton} aria-hidden="true" />}
+        )}        {isLoading && <div className={styles.skeleton} aria-hidden="true" />}
       </div>
 
     </aside>
@@ -157,6 +221,8 @@ export function TopicsPage() {
             <TopicHeader tree={tree} node={node} onNavigate={open} />
             <CardsSection key={node.topic.id} tree={tree} node={node} />
           </>
+        ) : tree && !hasTopics ? (
+          <EmptyTopics onCreate={startCreatingRoot} />
         ) : (
           tree && (
             <div className={styles.pick}>

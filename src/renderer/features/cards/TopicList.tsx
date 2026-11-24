@@ -2,7 +2,7 @@ import { useId, useMemo, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Id } from '@/api/types'
 import { can } from '@/features/topics/permissions'
-import { pathTo, type TopicNode, type TopicTree } from '@/features/topics/tree'
+import { matchingRows, type TopicNode, type TopicTree } from '@/features/topics/tree'
 import { SearchIcon } from '@/ui/icons'
 import styles from './TopicList.module.css'
 
@@ -25,22 +25,8 @@ export function TopicList({ tree, selectedId, onPick, disabledId }: TopicListPro
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
 
-  const rows = useMemo(() => {
-    const needle = query.trim().toLowerCase()
-    const all: TopicNode[] = []
-    const walk = (nodes: TopicNode[]): void =>
-      nodes.forEach((n) => {
-        all.push(n)
-        walk(n.children)
-      })
-    walk(tree.roots)
-    if (!needle) return all
-    const keep = new Set<Id>()
-    for (const n of all) {
-      if (n.topic.title.toLowerCase().includes(needle)) pathTo(tree, n.topic.id).forEach((p) => keep.add(p.topic.id))
-    }
-    return all.filter((n) => keep.has(n.topic.id))
-  }, [tree, query])
+  // Everything matches an empty query, so the list starts as the whole tree, fully expanded.
+  const rows = useMemo(() => matchingRows(tree, query), [tree, query])
 
   const pickable = (n: TopicNode): boolean => n.topic.id !== disabledId && can('edit', n.topic)
   const index = Math.min(active, rows.length - 1)

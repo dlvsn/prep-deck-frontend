@@ -7,7 +7,7 @@ import { Menu, type MenuItem } from '@/ui/Menu'
 import { DeleteTopicDialog } from './DeleteTopicDialog'
 import { MoveTopicDialog } from './MoveTopicDialog'
 import { can } from './permissions'
-import { dropTarget, visibleRows, type DropPosition, type TopicNode, type TopicTree as Tree } from './tree'
+import { dropTarget, matchingRows, visibleRows, type DropPosition, type TopicNode, type TopicTree as Tree } from './tree'
 import styles from './TopicTree.module.css'
 import { useTopicsUi } from './topicsUiStore'
 import { useTopicMutations } from './useTopics'
@@ -21,6 +21,10 @@ interface TopicTreeProps {
   /** Set by the page's "+" button: show the inline field for a new root topic. */
   creatingRoot: boolean
   onCreatingRootDone(): void
+  /** The panel's search field: when not blank, only matching topics show, with their parents. */
+  query: string
+  /** A new subtopic would be hidden by the search, so starting one clears it. */
+  onClearQuery(): void
 }
 
 /** The Share dialog arrives with stage 6; until then the menu item is shown disabled. */
@@ -31,12 +35,25 @@ type Editing = { kind: 'rename'; id: Id } | { kind: 'create'; parentId: Id | nul
 /**
  * The topic tree of My topics: expand and collapse, inline rename and create, a context menu
  * (right click, "⋯", Shift+F10), drag and drop to reorder and nest, and full keyboard control.
+ *
+ * While a search is on, the matches show with their parents opened, whatever was expanded before
+ * (that comes back when the search is cleared); branches do not fold and topics are not dragged,
+ * since half of each level is hidden.
  */
-export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot, onCreatingRootDone }: TopicTreeProps) {
+export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot, onCreatingRootDone, query, onClearQuery }: TopicTreeProps) {
   const { t } = useTranslation()
   const { expanded: expandedList, toggle, expand, collapse } = useTopicsUi()
   const expanded = useMemo(() => new Set(expandedList), [expandedList])
-  const rows = useMemo(() => visibleRows(tree, expanded), [tree, expanded])
+  const searching = query.trim() !== ''
+  const rows = useMemo(
+    () => (searching ? matchingRows(tree, query) : visibleRows(tree, expanded)),
+    [tree, expanded, searching, query]
+  )
+  // Searching: a topic is open when one of its children made it into the results.
+  const openInSearch = useMemo(() => new Set(searching ? rows.map((r) => r.topic.parentId) : []), [searching, rows])
+  const hasShownChildren = (node: TopicNode): boolean =>
+    searching ? openInSearch.has(node.topic.id) : node.children.length > 0
+  const isOpenRow = (node: TopicNode): boolean => (searching ? openInSearch.has(node.topic.id) : expanded.has(node.topic.id))
   const { create, rename, move } = useTopicMutations()
 
   const [focusedId, setFocusedId] = useState<Id | null>(selectedId)
@@ -120,6 +137,7 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
   }
 
   const startCreateChild = (node: TopicNode): void => {
+    if (searching) onClearQuery()
     expand(node.topic.id)
     setEditing({ kind: 'create', parentId: node.topic.id })
   }
@@ -208,8 +226,8 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
   const onRowKeyDown = (e: KeyboardEvent, node: TopicNode, index: number): void => {
     if (editing) return
     const id = node.topic.id
-    const isOpen = expanded.has(id)
-    const hasChildren = node.children.length > 0
+    const isOpen = isOpenRow(node)
+    const hasChildren = hasShownChildren(node)
     switch (e.key) {
       case 'ArrowDown':
         if (e.ctrlKey) moveAmongSiblings(node, 1)
@@ -221,10 +239,11 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
         break
       case 'ArrowRight':
         if (hasChildren && !isOpen) expand(id)
-        else if (hasChildren) focusRow(node.children[0].topic.id)
+        // An open topic's first shown child is the next row.
+        else if (hasChildren) focusRow(rows[index + 1]?.topic.id)
         break
       case 'ArrowLeft':
-        if (hasChildren && isOpen) collapse(id)
+        if (hasChildren && isOpen && !searching) collapse(id)
         else focusRow(node.topic.parentId)
         break
       case 'Home':
@@ -316,9 +335,11 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
   rows.forEach((node, index) => {
     const { topic } = node
     const id = topic.id
-    const isOpen = expanded.has(id)
-    const hasChildren = node.children.length > 0
-    const due = hasChildren && !isOpen ? node.totalDue : topic.dueCount
+    const isOpen = isOpenRow(node)
+    const hasChildren = hasShownChildren(node)
+    // A topic shows its subtree's totals when the subtree is folded away (or hidden by the search).
+    const folded = node.children.length > 0 && !isOpen
+    const due = folded ? node.totalDue : topic.dueCount
     const isRenaming = editing?.kind === 'rename' && editing.id === id
     const dropClass =
       drag?.over === id
@@ -350,13 +371,13 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
           dropClass
         ].join(' ')}
         style={{ paddingLeft: indent(node.depth) }}
-        draggable={!isRenaming && can('move', topic)}
+        draggable={!isRenaming && !searching && can('move', topic)}
         onClick={() => {
           setFocusedId(id)
           onSelect(id)
         }}
         onDoubleClick={(e) => {
-          if (hasChildren && !(e.target as HTMLElement).closest('button')) toggle(id)
+          if (hasChildren && !searching && !(e.target as HTMLElement).closest('button')) toggle(id)
         }}
         onFocus={() => setFocusedId(id)}
         onKeyDown={(e) => onRowKeyDown(e, node, index)}
@@ -385,7 +406,7 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
             aria-hidden="true"
             onClick={(e) => {
               e.stopPropagation()
-              toggle(id)
+              if (!searching) toggle(id)
             }}
           >
             <ChevronRightIcon size={16} />
@@ -455,6 +476,7 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
     <>
       <div className={styles.tree} role="tree" aria-label={t('nav.myTopics')}>
         {out}
+        {searching && rows.length === 0 && <p className={styles.noMatch}>{t('topics.noMatch')}</p>}
         <div
           className={`${styles.dropTail} ${drag ? styles.dropTailActive : ''}`}
           onDragOver={(e) => drag && e.preventDefault()}

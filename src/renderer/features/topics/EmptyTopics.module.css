@@ -1,0 +1,141 @@
+.wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 40px;
+}
+
+.body {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  animation: rise 450ms var(--ease) both;
+}
+
+/* ---------------------------------------------------------------- illustration */
+
+.art {
+  flex: none;
+  overflow: visible;
+}
+
+.back {
+  fill: var(--raised);
+}
+
+.middle {
+  fill: var(--card);
+  stroke: var(--border-2);
+  stroke-width: 1.5;
+}
+
+.front {
+  fill: var(--card);
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+}
+
+.line {
+  fill: var(--raised);
+}
+
+.plus {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: plus-pop 600ms 200ms var(--ease) both;
+}
+
+.plus circle {
+  fill: var(--accent);
+}
+
+.plus path {
+  fill: none;
+  stroke: var(--accent-ink);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+@keyframes plus-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------------------------------------------------------------- text */
+
+.title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.text {
+  margin: 0 0 6px;
+  max-width: 440px;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- steps */
+
+.steps {
+  width: 100%;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  text-align: left;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  animation: rise 400ms var(--ease) both;
+}
+
+.number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stepTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stepText {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted);
+}
+
+@media (max-width: 719px) {
+  .wrap {
+    padding: 24px 16px;
+  }
+}

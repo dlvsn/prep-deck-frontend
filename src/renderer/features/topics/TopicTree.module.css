@@ -211,3 +211,9 @@
 .dropTailActive {
   min-height: 48px;
 }
+
+.noMatch {
+  margin: 0;
+  padding: 10px 12px;
+  color: var(--muted);
+}
