@@ -43,6 +43,13 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  // A file dropped outside every drop zone would make Chromium navigate to file://… and replace
+  // the app with it. The renderer already cancels such drops; this is the backstop. The window
+  // never navigates anywhere but its own page.
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (url !== mainWindow?.webContents.getURL()) event.preventDefault()
+  })
+
   const devUrl = process.env['ELECTRON_RENDERER_URL']
   if (!app.isPackaged && devUrl) {
     void mainWindow.loadURL(devUrl)

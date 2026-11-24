@@ -1,8 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { USE_MOCKS } from '@/api'
+import { useTranslation } from 'react-i18next'
 import { ApiError } from '@/api/http'
-import { DEMO_LOGIN, DEMO_PASSWORD } from '@/api/mocks/auth'
 import type { UnconfirmedEmail } from '@/api/types'
 import { useSession } from '@/app/session'
 import { Button } from '@/ui/Button'
@@ -92,15 +90,6 @@ export function LoginForm({
         </button>
       </p>
 
-      {USE_MOCKS && (
-        <p className={styles.demo}>
-          <Trans
-            i18nKey="auth.demoHint"
-            values={{ login: DEMO_LOGIN, password: DEMO_PASSWORD }}
-            components={{ code: <code /> }}
-          />
-        </p>
-      )}
     </form>
   )
 }

@@ -1,6 +1,7 @@
 import type {
   Card,
   CardDraft,
+  CardPatch,
   CardImage,
   DayProgress,
   Grade,
@@ -18,8 +19,8 @@ import type {
 } from './types'
 
 /**
- * What the UI may ask of the backend, one interface per area. Each has an in-memory mock
- * (api/mocks) and, once the backend exposes it, an HTTP implementation; the UI never knows which.
+ * What the UI may ask of the backend, one interface per area, each implemented over HTTP in
+ * api/http. There are no mocks: the client needs prep-deck-backend running.
  */
 
 export interface AuthRepository {
@@ -57,33 +58,52 @@ export interface AuthRepository {
 export interface TopicsRepository {
   /** Topics the user owns, flat; parentId builds the tree. */
   listMine(): Promise<Topic[]>
-  /** Topics shared with the user, flat, each carrying its owner. */
-  listShared(): Promise<Topic[]>
   create(title: string, parentId: Id | null): Promise<Topic>
   rename(id: Id, title: string): Promise<Topic>
   /** Moves under a new parent (null: to the root) at the given position among its siblings. */
   move(id: Id, parentId: Id | null, order: number): Promise<Topic>
   /** Deletes the topic with all its subtopics and cards. */
   remove(id: Id): Promise<void>
-  markSeen(id: Id): Promise<void>
 }
 
-export type CardSort = 'edited' | 'created' | 'alpha' | 'status'
-
 export interface CardsRepository {
-  /** Cards directly in the topic. */
+  /** Cards directly in the topic, newest first. */
   list(topicId: Id): Promise<Card[]>
   get(id: Id): Promise<Card>
+  /**
+   * Rejects with "editor.questionRequired", "editor.tooManyTags", "editor.tooManyImages" or
+   * "images.notFound" (an image id that is not one of the user's uploads).
+   */
   create(topicId: Id, draft: CardDraft): Promise<Card>
-  update(id: Id, draft: CardDraft): Promise<Card>
+  /** Changes what the patch carries; `topicId` moves the card to another topic. */
+  update(id: Id, patch: CardPatch): Promise<Card>
   remove(id: Id): Promise<void>
-  /** Questions, answers and tags across every topic the user can see. */
-  search(query: string): Promise<Card[]>
+  /** A copy in the same topic with the same tags and images, and no progress. */
+  duplicate(id: Id, question: string): Promise<Card>
+  /** Every tag on the user's cards, for suggestions in the editor. */
+  tags(): Promise<string[]>
+}
+
+export interface UploadOptions {
+  /** 0…1 as the bytes go out. */
+  onProgress?(fraction: number): void
+  /** Aborting rejects with an `UploadAborted` (api/http). */
+  signal?: AbortSignal
 }
 
 export interface ImagesRepository {
-  upload(file: Blob, caption?: string): Promise<CardImage>
+  /**
+   * Uploads a picture before the card that shows it is saved; the card then lists its id. The
+   * server measures the file itself (weight, format, width and height). Rejects with
+   * "images.tooLarge", "images.notAnImage" or "images.tooSmall" (data: minWidth, minHeight).
+   */
+  upload(file: Blob, options?: UploadOptions): Promise<CardImage>
 }
+
+/*
+ * Not served by the backend yet, so not part of {@link Repositories}: the calls practice (stage 5)
+ * and sharing (stage 6) will make, kept as the contract the backend is to implement.
+ */
 
 export interface PracticeRepository {
   queue(scope: PracticeScope): Promise<PracticeItem[]>
@@ -92,6 +112,9 @@ export interface PracticeRepository {
 }
 
 export interface SharesRepository {
+  /** Topics shared with the user, flat, each carrying its owner. */
+  listShared(): Promise<Topic[]>
+  markSeen(topicId: Id): Promise<void>
   get(topicId: Id): Promise<TopicSharing>
   /** Rejects with "share.noSuchUser" when nobody has that email or username. */
   invite(topicId: Id, login: string, role: Exclude<Role, 'owner'>): Promise<TopicSharing>
@@ -116,7 +139,5 @@ export interface Repositories {
   topics: TopicsRepository
   cards: CardsRepository
   images: ImagesRepository
-  practice: PracticeRepository
-  shares: SharesRepository
   settings: SettingsRepository
 }

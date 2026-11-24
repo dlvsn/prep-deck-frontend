@@ -74,39 +74,6 @@
   to { background-position: -200% 0; }
 }
 
-.today {
-  padding: 14px 20px 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.todayText {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 2px 8px;
-  white-space: nowrap;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.todayBar {
-  height: 4px;
-  border-radius: 2px;
-  background: var(--raised);
-  overflow: hidden;
-}
-
-.todayBar span {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  transform-origin: left;
-  transition: transform 400ms var(--ease);
-}
-
 /* ---------------------------------------------------------------- drawer (compact, narrow) */
 
 .scrim {
@@ -153,7 +120,7 @@
   padding-top: 8px;
 }
 
-.cardsSoon {
+.pick {
   flex: 1;
   display: grid;
   place-items: center;
@@ -162,7 +129,7 @@
   text-align: center;
 }
 
-.cardsSoon p {
+.pick p {
   margin: 0;
   max-width: 44ch;
 }

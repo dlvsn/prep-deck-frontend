@@ -1,0 +1,252 @@
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- the large picture */
+
+.stage {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--raised);
+  overflow: hidden;
+}
+
+.stageImage {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.stageImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  animation: fade-in 250ms var(--ease);
+}
+
+.stageEmpty {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.arrow,
+.expand {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color 150ms var(--ease), transform 120ms var(--ease);
+}
+
+.arrow:hover,
+.expand:hover {
+  background: var(--panel);
+}
+
+.arrow:active,
+.expand:active {
+  transform: scale(0.94);
+}
+
+.arrowLeft {
+  left: 12px;
+  top: calc(50% - 18px);
+}
+
+.arrowRight {
+  right: 12px;
+  top: calc(50% - 18px);
+}
+
+.expand {
+  top: 12px;
+  right: 12px;
+  border-radius: 10px;
+}
+
+.counter {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------- the five slots */
+
+.thumbs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(56px, 1fr));
+  gap: 10px;
+}
+
+.slot {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 1px solid var(--border-2);
+  background: var(--raised);
+  overflow: hidden;
+}
+
+.thumb {
+  cursor: pointer;
+  touch-action: none;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.selected {
+  border: 2px solid var(--accent);
+}
+
+.dragging {
+  z-index: 2;
+  opacity: 0.85;
+  box-shadow: var(--shadow-pop);
+}
+
+.empty {
+  background: transparent;
+}
+
+.add {
+  display: grid;
+  place-items: center;
+  border-style: dashed;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.add:hover {
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+.error {
+  border: 2px solid var(--danger);
+}
+
+.flash {
+  animation: shake 420ms var(--ease);
+}
+
+@keyframes shake {
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.progress {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left;
+}
+
+.retry {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--danger);
+  color: var(--accent-ink);
+  cursor: pointer;
+}
+
+.remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  color: var(--text);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 150ms var(--ease);
+}
+
+.thumb:hover .remove,
+.thumb:focus-within .remove,
+.error .remove {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .remove {
+    opacity: 1;
+  }
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Narrow: the row of thumbnails scrolls sideways instead of shrinking. */
+@media (max-width: 719px) {
+  .thumbs {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 72px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+}

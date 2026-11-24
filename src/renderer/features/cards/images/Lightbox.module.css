@@ -1,0 +1,98 @@
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  animation: fade-in 200ms var(--ease);
+  touch-action: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  backdrop-filter: blur(2px);
+}
+
+.image {
+  position: relative;
+  max-width: calc(100vw - 120px);
+  max-height: calc(100vh - 96px);
+  object-fit: contain;
+  border-radius: 8px;
+  user-select: none;
+  transform-origin: center;
+  animation: fade-in 250ms var(--ease);
+}
+
+.close,
+.arrow {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color 150ms var(--ease), transform 120ms var(--ease);
+}
+
+.close:hover,
+.arrow:hover {
+  background: var(--panel);
+}
+
+.close:active,
+.arrow:active {
+  transform: scale(0.94);
+}
+
+.close {
+  top: calc(var(--titlebar-offset) + 16px);
+  right: 16px;
+  width: 40px;
+  height: 40px;
+}
+
+.arrow {
+  top: calc(50% - 22px);
+  width: 44px;
+  height: 44px;
+}
+
+.left {
+  left: 16px;
+}
+
+.right {
+  right: 16px;
+}
+
+.counter {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+}
+
+@media (max-width: 719px) {
+  .image {
+    max-width: 100vw;
+    max-height: calc(100vh - 120px);
+    border-radius: 0;
+  }
+
+  .arrow {
+    top: auto;
+    bottom: 12px;
+  }
+}

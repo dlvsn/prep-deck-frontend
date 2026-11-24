@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import type { Id } from '@/api/types'
 import { useLayoutMode } from '@/app/useLayoutMode'
+import { CardModal } from '@/features/cards/CardModal'
+import { CardsSection } from '@/features/cards/CardsSection'
 import { Button } from '@/ui/Button'
 import { CloseIcon, MenuIcon, PlusIcon } from '@/ui/icons'
 import { pathTo, type TopicNode } from './tree'
@@ -10,7 +12,7 @@ import { TopicHeader } from './TopicHeader'
 import styles from './TopicsPage.module.css'
 import { TopicTree } from './TopicTree'
 import { useTopicsUi } from './topicsUiStore'
-import { useDayProgress, useMyTopics } from './useTopics'
+import { useMyTopics } from './useTopics'
 
 /**
  * Screen 1, My topics: the topic tree beside the open topic. On a compact or narrow window the
@@ -25,7 +27,6 @@ export function TopicsPage() {
 
   const { tree, isLoading } = useMyTopics()
   const { lastTopicId, setLastTopic, expand } = useTopicsUi()
-  const today = useDayProgress()
   const [creatingRoot, setCreatingRoot] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -120,22 +121,12 @@ export function TopicsPage() {
         {isLoading && <div className={styles.skeleton} aria-hidden="true" />}
       </div>
 
-      {today.data && today.data.total > 0 && (
-        <div className={styles.today}>
-          <div className={styles.todayText}>
-            <span>{t('today.label')}</span>
-            <span>{t('today.reviewed', { reviewed: today.data.reviewed, total: today.data.total })}</span>
-          </div>
-          <div className={styles.todayBar}>
-            <span style={{ transform: `scaleX(${today.data.reviewed / today.data.total})` }} />
-          </div>
-        </div>
-      )}
     </aside>
   )
 
   return (
     <div className={styles.page}>
+      {tree && <CardModal tree={tree} />}
       {asDrawer ? (
         drawerOpen && (
           <div
@@ -164,13 +155,11 @@ export function TopicsPage() {
         {tree && node ? (
           <>
             <TopicHeader tree={tree} node={node} onNavigate={open} />
-            <div className={styles.cardsSoon}>
-              <p>{t('topics.cardsSoon')}</p>
-            </div>
+            <CardsSection key={node.topic.id} tree={tree} node={node} />
           </>
         ) : (
           tree && (
-            <div className={styles.cardsSoon}>
+            <div className={styles.pick}>
               <p>{t('topics.pick')}</p>
             </div>
           )

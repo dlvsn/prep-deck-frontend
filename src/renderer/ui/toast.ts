@@ -28,8 +28,8 @@ export const useToasts = create<ToastState>()((set, get) => ({
 }))
 
 /**
- * Words for a failure: the backend's message, translated when it is one of our keys (the mocks
- * answer with keys), shown as is when the backend already wrote it for the user.
+ * Words for a failure: the backend's message key, translated; a message that is not one of our
+ * keys is shown as is.
  */
 export function errorText(error: unknown): string {
   const message = error instanceof ApiError ? error.message : ''

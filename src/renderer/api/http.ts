@@ -16,6 +16,14 @@ export class ApiError extends Error {
   }
 }
 
+/** An upload stopped on purpose (its slot was removed); not an error to show. */
+export class UploadAborted extends Error {
+  constructor() {
+    super('upload aborted')
+    this.name = 'UploadAborted'
+  }
+}
+
 export interface HttpClientOptions {
   baseUrl: string
   getAccessToken(): string | null
@@ -40,6 +48,47 @@ export interface HttpClient {
   put<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T>
   patch<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T>
   delete<T>(path: string, options?: RequestOptions): Promise<T>
+  /**
+   * A multipart POST over XMLHttpRequest, which (unlike fetch) reports upload progress. Same
+   * envelope, same single refresh on 401.
+   */
+  upload<T>(path: string, form: FormData, progress?: { onProgress?(fraction: number): void; signal?: AbortSignal }): Promise<T>
+}
+
+interface RawResponse {
+  status: number
+  body: string
+}
+
+function sendXhr(
+  url: string,
+  form: FormData,
+  headers: Record<string, string>,
+  onProgress?: (fraction: number) => void,
+  signal?: AbortSignal
+): Promise<RawResponse> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new UploadAborted())
+      return
+    }
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', url)
+    for (const [name, value] of Object.entries(headers)) xhr.setRequestHeader(name, value)
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress?.(e.loaded / e.total)
+    }
+    xhr.onload = () => resolve({ status: xhr.status, body: xhr.responseText })
+    xhr.onerror = () => reject(new ApiError('errors.offline', 0))
+    xhr.onabort = () => reject(new UploadAborted())
+    signal?.addEventListener('abort', () => xhr.abort(), { once: true })
+    xhr.send(form)
+  })
+}
+
+function unwrap<T>(status: number, envelope: ApiResponse<T> | null): T {
+  if (envelope && envelope.success && status >= 200 && status < 300) return envelope.data as T
+  throw new ApiError(envelope?.message || 'errors.generic', status, envelope?.data ?? null)
 }
 
 /**
@@ -89,8 +138,33 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
       // A body that is not the envelope (a proxy error page, say) falls through to the status.
     }
 
-    if (envelope && envelope.success && response.ok) return envelope.data as T
-    throw new ApiError(envelope?.message || 'errors.generic', response.status, envelope?.data ?? null)
+    return unwrap(response.status, envelope)
+  }
+
+  async function upload<T>(
+    path: string,
+    form: FormData,
+    progress: { onProgress?(fraction: number): void; signal?: AbortSignal } = {},
+    retried = false
+  ): Promise<T> {
+    const token = options.getAccessToken()
+    const headers: Record<string, string> = { Accept: 'application/json', 'Accept-Language': i18n.language }
+    if (token) headers.Authorization = `Bearer ${token}`
+
+    const response = await sendXhr(options.baseUrl + path, form, headers, progress.onProgress, progress.signal)
+    if (response.status === 401 && !retried) {
+      if (await refreshOnce()) return upload<T>(path, form, progress, true)
+      options.onSessionExpired()
+      throw new ApiError('errors.sessionExpired', 401)
+    }
+
+    let envelope: ApiResponse<T> | null = null
+    try {
+      envelope = JSON.parse(response.body) as ApiResponse<T>
+    } catch {
+      // Not the envelope: fall through to the status.
+    }
+    return unwrap(response.status, envelope)
   }
 
   return {
@@ -98,6 +172,7 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
     post: (path, body, request) => send('POST', path, body, request),
     put: (path, body, request) => send('PUT', path, body, request),
     patch: (path, body, request) => send('PATCH', path, body, request),
-    delete: (path, request) => send('DELETE', path, undefined, request)
+    delete: (path, request) => send('DELETE', path, undefined, request),
+    upload: (path, form, progress) => upload(path, form, progress)
   }
 }

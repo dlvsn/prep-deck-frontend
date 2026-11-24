@@ -16,6 +16,13 @@ import { platform } from './app/platform'
 import { trackResizing } from './app/useLayoutMode'
 
 trackResizing()
+// A file dropped anywhere but a drop zone must not open in the window instead of the app.
+// Drop zones (features/cards/images/useFileDrop) handle their own drops before this sees them.
+for (const type of ['dragover', 'drop'] as const) {
+  document.addEventListener(type, (e) => {
+    if (e.dataTransfer?.types.includes('Files')) e.preventDefault()
+  })
+}
 // Lets CSS leave room for our own title bar, which only the desktop app has.
 document.documentElement.dataset.platform = platform.kind
 

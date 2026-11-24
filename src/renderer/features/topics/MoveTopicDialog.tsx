@@ -4,7 +4,7 @@ import type { Id } from '@/api/types'
 import { Button } from '@/ui/Button'
 import { Modal } from '@/ui/Modal'
 import styles from './MoveTopicDialog.module.css'
-import { canCreateSubtopic } from './permissions'
+import { can } from './permissions'
 import { subtreeIds, type TopicNode, type TopicTree } from './tree'
 import { useTopicMutations } from './useTopics'
 
@@ -22,7 +22,7 @@ export function MoveTopicDialog({ tree, node, onClose }: { tree: TopicTree; node
   const walk = (nodes: TopicNode[]): void => {
     for (const n of nodes) {
       if (excluded.has(n.topic.id)) continue
-      if (canCreateSubtopic(n.topic)) options.push(n)
+      if (can('edit', n.topic)) options.push(n)
       walk(n.children)
     }
   }

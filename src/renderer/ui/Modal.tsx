@@ -1,6 +1,7 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
+import { useDialogLayer } from './dialogLayer'
 import { CloseIcon } from './icons'
 import styles from './Modal.module.css'
 
@@ -15,49 +16,14 @@ interface ModalProps {
   footer?: ReactNode
 }
 
-const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
-
 /**
  * A dialog over a scrim. Escape and the scrim close it, Tab stays inside it, and focus returns
- * to whatever was focused before it opened.
+ * to whatever was focused before it opened. Over another dialog it takes the keys first.
  */
 export function Modal({ open, onClose, title, subtitle, width = 500, children, footer }: ModalProps) {
   const { t } = useTranslation()
   const dialog = useRef<HTMLDivElement>(null)
-  const onCloseRef = useRef(onClose)
-  onCloseRef.current = onClose
-
-  useEffect(() => {
-    if (!open) return
-    const previous = document.activeElement as HTMLElement | null
-    const node = dialog.current
-    const first = node?.querySelector<HTMLElement>('[data-autofocus]') ?? node?.querySelector<HTMLElement>(FOCUSABLE)
-    first?.focus()
-
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
-        e.stopPropagation()
-        onCloseRef.current()
-        return
-      }
-      if (e.key !== 'Tab' || !node) return
-      const items = [...node.querySelectorAll<HTMLElement>(FOCUSABLE)]
-      if (items.length === 0) return
-      const [head, tail] = [items[0], items[items.length - 1]]
-      if (e.shiftKey && document.activeElement === head) {
-        e.preventDefault()
-        tail.focus()
-      } else if (!e.shiftKey && document.activeElement === tail) {
-        e.preventDefault()
-        head.focus()
-      }
-    }
-    document.addEventListener('keydown', onKey, true)
-    return () => {
-      document.removeEventListener('keydown', onKey, true)
-      previous?.focus()
-    }
-  }, [open])
+  useDialogLayer(open, dialog, onClose)
 
   if (!open) return null
   return createPortal(

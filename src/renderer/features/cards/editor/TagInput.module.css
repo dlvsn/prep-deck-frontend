@@ -1,0 +1,90 @@
+.field {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  background: var(--card);
+  cursor: text;
+}
+
+.field:focus-within {
+  border-color: var(--accent);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px 4px 10px;
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.chipRemove {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.chipRemove:hover {
+  color: var(--text);
+  background: var(--border);
+}
+
+.input {
+  flex: 1;
+  min-width: 120px;
+  padding: 4px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+}
+
+.input::placeholder {
+  color: var(--muted);
+}
+
+.suggestions {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: calc(100% + 6px);
+  z-index: 5;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--menu);
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  box-shadow: var(--shadow-pop);
+  animation: pop-in 160ms var(--ease);
+}
+
+.suggestions li {
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.activeOption {
+  background: var(--raised);
+  color: var(--text);
+}

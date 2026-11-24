@@ -6,19 +6,13 @@ import { toastError } from '@/ui/toast'
 import { buildTree, type TopicTree } from './tree'
 
 export const topicKeys = {
-  mine: ['topics', 'mine'] as const,
-  shared: ['topics', 'shared'] as const,
-  today: ['practice', 'today'] as const
+  mine: ['topics', 'mine'] as const
 }
 
 export function useMyTopics(): { tree: TopicTree | null; isLoading: boolean; isError: boolean } {
   const query = useQuery({ queryKey: topicKeys.mine, queryFn: () => api.topics.listMine() })
   const tree = useMemo(() => (query.data ? buildTree(query.data) : null), [query.data])
   return { tree, isLoading: query.isLoading, isError: query.isError }
-}
-
-export function useDayProgress() {
-  return useQuery({ queryKey: topicKeys.today, queryFn: () => api.practice.today() })
 }
 
 /** Replaces one topic in the cached list right away, so the tree does not wait for the server. */
@@ -91,7 +85,8 @@ export function useTopicMutations() {
     onError: toastError,
     onSettled: () => {
       void refetch()
-      void client.invalidateQueries({ queryKey: topicKeys.today })
+      // The cards of a deleted subtree are gone too.
+      void client.invalidateQueries({ queryKey: ['cards'] })
     }
   })
 

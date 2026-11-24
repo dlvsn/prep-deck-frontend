@@ -1,17 +1,29 @@
 import type { Topic } from '@/api/types'
 
 /**
- * What the UI offers on a topic, from the role the server returned for it (spec, «Шеринг»).
- * The server checks again; this only hides what would be refused.
+ * What can be done on a topic. `edit` covers its content: renaming it, subtopics, and every card
+ * action (new card, edit, images, drag and drop, duplicate, move a card, delete a card).
+ * `move` and `delete` are about the topic itself; `share` is the owner's alone.
  */
-export const canEditContent = (t: Topic): boolean => t.role === 'owner' || t.role === 'editor'
+export type TopicAction = 'view' | 'edit' | 'move' | 'delete' | 'share'
 
-/** Renaming a root and creating subtopics: owner or editor; a root's place is the owner's call. */
-export const canRename = canEditContent
-export const canCreateSubtopic = canEditContent
-
-/** Moving or deleting: owner always; an editor only below the shared root. */
-export const canMoveOrDelete = (t: Topic): boolean =>
-  t.role === 'owner' || (t.role === 'editor' && t.parentId !== null)
-
-export const canShare = (t: Topic): boolean => t.role === 'owner'
+/**
+ * The single place the UI decides which actions to offer, from the role the server returned for
+ * the topic (`owner` | `editor` | `viewer`). Nothing else in the code looks at roles or asks
+ * "am I the owner"; the server checks again, this only hides what it would refuse.
+ *
+ * Sharing is not built yet, so the server answers `owner` everywhere; editor and viewer can be
+ * tried with VITE_FORCE_ROLE in development.
+ */
+export function can(action: TopicAction, topic: Topic): boolean {
+  switch (topic.role) {
+    case 'owner':
+      return true
+    case 'editor':
+      // A shared root stays where its owner put it.
+      if (action === 'move' || action === 'delete') return topic.parentId !== null
+      return action === 'view' || action === 'edit'
+    case 'viewer':
+      return action === 'view'
+  }
+}

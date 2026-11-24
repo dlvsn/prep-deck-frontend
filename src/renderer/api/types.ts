@@ -1,6 +1,7 @@
 /**
- * Shapes exchanged with the backend. Hand-written until the backend publishes an OpenAPI
- * contract; then these are replaced by generated ones.
+ * Shapes exchanged with the backend (prep-deck-backend, the `*Response` / `*Request` records).
+ * Hand-written until the backend publishes an OpenAPI contract; then these are replaced by
+ * generated ones.
  */
 
 /** The envelope every backend endpoint answers with (prep-deck-backend `ApiResponse<T>`). */
@@ -75,10 +76,12 @@ export interface Topic {
 
 export type CardStatus = 'new' | 'learning' | 'known'
 
+/** An uploaded picture. `url` is absolute and loads without a token. */
 export interface CardImage {
   id: Id
   url: string
-  caption: string | null
+  width: number
+  height: number
 }
 
 export interface Card {
@@ -101,8 +104,12 @@ export interface CardDraft {
   question: string
   answer: string
   tags: string[]
+  /** Uploads, in display order; the first is the main picture. */
   imageIds: Id[]
 }
+
+/** A partial update; `topicId` moves the card. Practice progress is never touched by an edit. */
+export type CardPatch = Partial<CardDraft> & { topicId?: Id }
 
 export type Grade = 'again' | 'hard' | 'good' | 'easy'
 

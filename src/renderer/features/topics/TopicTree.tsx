@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Id } from '@/api/types'
-import { ChevronRightIcon, FolderPlusIcon, MoreIcon, MoveIcon, PencilIcon, ShareIcon, SharedIcon, TrashIcon } from '@/ui/icons'
+import { useCardModal } from '@/features/cards/cardModalStore'
+import { ChevronRightIcon, FolderPlusIcon, MoreIcon, MoveIcon, PencilIcon, PlusIcon, ShareIcon, SharedIcon, TrashIcon } from '@/ui/icons'
 import { Menu, type MenuItem } from '@/ui/Menu'
 import { DeleteTopicDialog } from './DeleteTopicDialog'
 import { MoveTopicDialog } from './MoveTopicDialog'
-import { canCreateSubtopic, canMoveOrDelete, canRename, canShare } from './permissions'
+import { can } from './permissions'
 import { dropTarget, visibleRows, type DropPosition, type TopicNode, type TopicTree as Tree } from './tree'
 import styles from './TopicTree.module.css'
 import { useTopicsUi } from './topicsUiStore'
@@ -127,53 +128,70 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
     const siblings = node.topic.parentId ? (tree.byId.get(node.topic.parentId)?.children ?? []) : tree.roots
     const index = siblings.indexOf(node)
     const order = index + delta
-    if (order < 0 || order >= siblings.length || !canMoveOrDelete(node.topic)) return
+    if (order < 0 || order >= siblings.length || !can('move', node.topic)) return
     move.mutate({ id: node.topic.id, parentId: node.topic.parentId, order })
     focusRow(node.topic.id)
   }
 
-  const menuItems = (node: TopicNode): MenuItem[] => [
-    {
-      id: 'rename',
-      label: t('topics.rename'),
-      icon: <PencilIcon size={16} />,
-      disabled: !canRename(node.topic),
-      onSelect: () => setEditing({ kind: 'rename', id: node.topic.id })
-    },
-    {
-      id: 'subtopic',
-      label: t('topics.newSubtopic'),
-      icon: <FolderPlusIcon size={16} />,
-      disabled: !canCreateSubtopic(node.topic),
-      onSelect: () => startCreateChild(node)
-    },
-    {
-      id: 'move',
-      label: t('topics.moveTo'),
-      icon: <MoveIcon size={16} />,
-      disabled: !canMoveOrDelete(node.topic),
-      onSelect: () => setMoving(node)
-    },
-    {
-      id: 'share',
-      label: t('topics.share'),
-      icon: <ShareIcon size={16} />,
-      disabled: !SHARE_DIALOG_READY || !canShare(node.topic),
-      onSelect: () => undefined
-    },
-    {
-      id: 'delete',
-      label: t('topics.delete'),
-      icon: <TrashIcon size={16} />,
-      danger: true,
-      disabled: !canMoveOrDelete(node.topic),
-      onSelect: () => setDeleting(node)
-    }
-  ]
+  // Actions the role does not allow are left out, not shown disabled.
+  const menuItems = (node: TopicNode): MenuItem[] => {
+    const items: Array<MenuItem & { allowed: boolean }> = [
+      {
+        id: 'newCard',
+        label: t('cards.new'),
+        icon: <PlusIcon size={16} />,
+        allowed: can('edit', node.topic),
+        onSelect: () => useCardModal.getState().openCreate(node.topic.id)
+      },
+      {
+        id: 'rename',
+        label: t('topics.rename'),
+        icon: <PencilIcon size={16} />,
+        allowed: can('edit', node.topic),
+        onSelect: () => setEditing({ kind: 'rename', id: node.topic.id })
+      },
+      {
+        id: 'subtopic',
+        label: t('topics.newSubtopic'),
+        icon: <FolderPlusIcon size={16} />,
+        allowed: can('edit', node.topic),
+        onSelect: () => startCreateChild(node)
+      },
+      {
+        id: 'move',
+        label: t('topics.moveTo'),
+        icon: <MoveIcon size={16} />,
+        allowed: can('move', node.topic),
+        onSelect: () => setMoving(node)
+      },
+      {
+        id: 'share',
+        label: t('topics.share'),
+        icon: <ShareIcon size={16} />,
+        allowed: can('share', node.topic),
+        disabled: !SHARE_DIALOG_READY,
+        onSelect: () => undefined
+      },
+      {
+        id: 'delete',
+        label: t('topics.delete'),
+        icon: <TrashIcon size={16} />,
+        danger: true,
+        allowed: can('delete', node.topic),
+        onSelect: () => setDeleting(node)
+      }
+    ]
+    return items.filter((item) => item.allowed)
+  }
+
+  // A viewer may have nothing to pick from: then no menu opens at all.
+  const openMenu = (at: { x: number; y: number }, node: TopicNode): void => {
+    if (menuItems(node).length > 0) setMenu({ at, node })
+  }
 
   const openMenuAtRow = (node: TopicNode): void => {
     const rect = rowRefs.current.get(node.topic.id)?.getBoundingClientRect()
-    if (rect) setMenu({ at: { x: rect.right - 40, y: rect.bottom - 4 }, node })
+    if (rect) openMenu({ x: rect.right - 40, y: rect.bottom - 4 }, node)
   }
 
   // Dismissed: focus goes back to the row. Picked: the action (an inline field, a dialog) takes it.
@@ -220,10 +238,10 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
         onSelect(id)
         break
       case 'F2':
-        if (canRename(node.topic)) setEditing({ kind: 'rename', id })
+        if (can('edit', node.topic)) setEditing({ kind: 'rename', id })
         break
       case 'Delete':
-        if (canMoveOrDelete(node.topic)) setDeleting(node)
+        if (can('delete', node.topic)) setDeleting(node)
         break
       case 'ContextMenu':
         openMenuAtRow(node)
@@ -245,7 +263,7 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
     const y = (e.clientY - rect.top) / rect.height
     if (y < 0.28) return 'before'
     if (y > 0.72) return 'after'
-    return canCreateSubtopic(node.topic) ? 'inside' : y < 0.5 ? 'before' : 'after'
+    return can('edit', node.topic) ? 'inside' : y < 0.5 ? 'before' : 'after'
   }
 
   const onDragOver = (e: DragEvent, node: TopicNode): void => {
@@ -279,7 +297,7 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
     if (!drag) return
     const dragged = tree.byId.get(drag.id)
     setDrag(null)
-    if (!dragged || !canMoveOrDelete(dragged.topic)) return
+    if (!dragged || !can('move', dragged.topic)) return
     const order = tree.roots.filter((r) => r.topic.id !== drag.id).length
     move.mutate({ id: drag.id, parentId: null, order })
   }
@@ -332,7 +350,7 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
           dropClass
         ].join(' ')}
         style={{ paddingLeft: indent(node.depth) }}
-        draggable={!isRenaming && canMoveOrDelete(topic)}
+        draggable={!isRenaming && can('move', topic)}
         onClick={() => {
           setFocusedId(id)
           onSelect(id)
@@ -345,7 +363,7 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
         onContextMenu={(e) => {
           e.preventDefault()
           setFocusedId(id)
-          setMenu({ at: { x: e.clientX, y: e.clientY }, node })
+          openMenu({ x: e.clientX, y: e.clientY }, node)
         }}
         onDragStart={(e) => {
           e.dataTransfer.effectAllowed = 'move'
@@ -409,7 +427,7 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
                 e.stopPropagation()
                 const rect = e.currentTarget.getBoundingClientRect()
                 setFocusedId(id)
-                setMenu({ at: { x: rect.left, y: rect.bottom + 4 }, node })
+                openMenu({ x: rect.left, y: rect.bottom + 4 }, node)
               }}
             >
               <MoreIcon size={16} />

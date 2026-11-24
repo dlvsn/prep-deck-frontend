@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { api, USE_MOCKS } from '@/api'
+import { useTranslation } from 'react-i18next'
+import { api } from '@/api'
 import { ApiError } from '@/api/http'
-import { DEMO_CODE } from '@/api/mocks/auth'
 import type { CodeAttempts, RetryAfter, Session } from '@/api/types'
 import { useSession } from '@/app/session'
 import { Button } from '@/ui/Button'
@@ -152,11 +151,6 @@ export function VerifyEmail({
           </button>
         </p>
 
-        {USE_MOCKS && (
-          <p className={styles.demo}>
-            <Trans i18nKey="auth.demoCode" values={{ code: DEMO_CODE }} components={{ code: <code /> }} />
-          </p>
-        )}
       </form>
     </div>
   )

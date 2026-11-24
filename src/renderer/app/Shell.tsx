@@ -1,8 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
 import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet } from 'react-router-dom'
-import { api } from '@/api'
 import { AppearancePanel } from '@/features/settings/AppearancePanel'
 import { LogOutIcon, LogoIcon, PaletteIcon, PracticeIcon, SharedIcon, TopicsIcon } from '@/ui/icons'
 import { Popover } from '@/ui/Popover'
@@ -33,8 +31,8 @@ export function Shell() {
 
   const user = useSession((s) => s.user)
   const endSession = useSession((s) => s.logout)
-  const shared = useQuery({ queryKey: ['topics', 'shared'], queryFn: () => api.topics.listShared() })
-  const invites = shared.data?.filter((topic) => topic.unseen && topic.parentId === null).length ?? 0
+  // Invitations count once sharing exists (stage 6); the backend has no shared topics yet.
+  const invites = 0
   const initial = user?.name.charAt(0).toUpperCase() ?? ''
   const logout = (): void => void endSession()
 

@@ -11,7 +11,8 @@ declare global {
 
   interface ImportMetaEnv {
     readonly VITE_API_URL: string
-    readonly VITE_USE_MOCKS: string
+    /** Development only: every topic arrives with this role (owner, editor, viewer). */
+    readonly VITE_FORCE_ROLE?: string
   }
 }
 

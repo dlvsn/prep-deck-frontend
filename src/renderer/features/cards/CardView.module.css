@@ -1,0 +1,42 @@
+.question {
+  margin: 0 0 14px;
+  font-size: 30px;
+  line-height: 1.25;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.noAnswer {
+  margin: 0;
+  color: var(--muted);
+}
+
+.due {
+  flex: none;
+  color: var(--accent-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 719px) {
+  .question {
+    font-size: 24px;
+  }
+}

@@ -11,8 +11,12 @@ Work goes stage by stage as the spec's «Етапи» section lists them. Window
 - `src/preload` — the `window.prepDeck` bridge, typed in `src/shared/bridge.ts`.
 - `src/renderer` — a plain web app; `vite.web.config.ts` runs it in a browser (the future web
   version). It reaches the host only through `app/platform.ts`, never `window.prepDeck`.
-  - `app/` routing, shell, providers · `api/` HTTP client, types, repositories, `mocks/` ·
+  - `app/` routing, shell, providers · `api/` HTTP client, types, repositories ·
     `features/` screens · `ui/` shared components and icons · `theme/` tokens · `i18n/` en, uk.
+  - `features/cards/`: the grid (`CardsSection`), the card dialog (`CardModal` → `CardView` /
+    `editor/CardEditor`), `images/` (slots with upload queue, gallery, lightbox, file drop),
+    `markdown/` (render with Shiki, toolbar edits), `cardModalStore` (who opens the dialog),
+    `useCards` (queries and optimistic mutations), `drafts` (local editor drafts).
 
 ## Conventions
 
@@ -21,7 +25,16 @@ Work goes stage by stage as the spec's «Етапи» section lists them. Window
 - No literal colours in components: only the variables of `theme/tokens.css`.
 - CSS Modules per component; animate only `transform` and `opacity` (plus theme colours).
 - The backend answers every call with `{ success, message, data }`; `api/http.ts` unwraps it.
-  Each repository is an interface in `api/repositories.ts` with a mock in `api/mocks`
-  (`VITE_USE_MOCKS=true`), so the client runs without a backend. With `false`, the areas the
-  backend serves (`api/http/`, wired in `api/index.ts`) go over HTTP and the rest stay mocked.
+  Each repository is an interface in `api/repositories.ts`, implemented over HTTP in `api/http/`
+  and wired in `api/index.ts`. There are no mocks: the client needs prep-deck-backend running at
+  `VITE_API_URL`. Areas the backend does not serve yet (practice, sharing) are not in
+  `Repositories`; their interfaces stay in the file as the contract.
+- What a user may do on a topic goes through `can(action, topic)` in
+  `features/topics/permissions.ts`, from `topic.role`; nothing else looks at roles. Actions the
+  role does not allow are not rendered (not shown disabled). The backend answers `owner` until
+  sharing exists; `VITE_FORCE_ROLE=viewer|editor` (development only) tries the other roles.
+- Dialogs use `ui/dialogLayer.ts`: layers stack, only the top one takes Escape and Tab. A widget
+  that handles Escape itself while open marks itself `data-own-escape`.
+- A file dropped on the window never opens in it: `main.tsx` cancels stray drops and the main
+  process refuses navigation; drop zones use `features/cards/images/useFileDrop`.
 - Icons are in-house SVGs in `ui/icons.tsx`, drawn in the Lucide style.

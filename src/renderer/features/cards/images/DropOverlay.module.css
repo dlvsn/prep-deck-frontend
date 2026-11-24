@@ -1,0 +1,39 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  padding: 12px;
+  display: flex;
+  background: var(--scrim);
+  border-radius: inherit;
+  /* The zone keeps receiving the drag events; the overlay only shows. */
+  pointer-events: none;
+  animation: fade-in 150ms var(--ease);
+}
+
+.frame {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  border: 2px dashed var(--accent);
+  border-radius: 16px;
+}
+
+.text {
+  margin: 0;
+  max-width: 40ch;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+.muted .frame {
+  border-color: var(--border-2);
+}
+
+.muted .text {
+  color: var(--muted);
+  font-weight: 500;
+}

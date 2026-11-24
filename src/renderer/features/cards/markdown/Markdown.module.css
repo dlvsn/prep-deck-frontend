@@ -1,0 +1,171 @@
+.markdown {
+  color: var(--text-2);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown p,
+.markdown ul,
+.markdown ol,
+.markdown blockquote,
+.markdown table {
+  margin: 0 0 14px;
+}
+
+.markdown ul,
+.markdown ol {
+  padding-left: 24px;
+}
+
+.markdown li + li {
+  margin-top: 6px;
+}
+
+.markdown strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4 {
+  margin: 20px 0 10px;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.markdown h1 { font-size: 22px; }
+.markdown h2 { font-size: 19px; }
+.markdown h3,
+.markdown h4 { font-size: 17px; }
+
+.markdown a {
+  color: var(--accent-text);
+}
+
+.markdown blockquote {
+  padding-left: 14px;
+  border-left: 3px solid var(--border-2);
+  color: var(--muted);
+}
+
+.markdown :not(pre) > code {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--raised);
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  color: var(--text);
+}
+
+.markdown table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+
+.markdown th,
+.markdown td {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.markdown img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.markdown hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 18px 0;
+}
+
+/* ---------------------------------------------------------------- code blocks */
+
+.code {
+  margin: 0 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--code);
+  overflow: hidden;
+}
+
+.codeBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px 6px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.codeLang {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.copy:hover {
+  background: var(--raised);
+  color: var(--text);
+}
+
+.codeBody,
+.codeBody :global(pre.shiki) {
+  margin: 0;
+  padding: 14px 18px;
+  overflow-x: auto;
+  background: transparent !important;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.codeBody :global(pre.shiki) {
+  padding: 0;
+}
+
+.codeBody code {
+  font-family: inherit;
+}
+
+/* Shiki renders both themes into variables; the mode picks one. */
+:global([data-mode='dark']) .codeBody :global(.shiki span),
+:global(:root:not([data-mode])) .codeBody :global(.shiki span) {
+  color: var(--shiki-dark);
+}
+
+:global([data-mode='light']) .codeBody :global(.shiki span) {
+  color: var(--shiki-light);
+}

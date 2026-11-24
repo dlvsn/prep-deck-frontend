@@ -16,10 +16,10 @@ interface TopicsUiState {
 
 const KEY = 'prep-deck.topics-ui'
 
-// First launch: the two roots that are open on mockup 1 (they exist in the demo data only).
+// First launch: nothing expanded, no topic remembered; the page opens the first root.
 const initial = (): Pick<TopicsUiState, 'expanded' | 'lastTopicId'> => ({
-  expanded: ['t-java', 't-english'],
-  lastTopicId: 't-jvm'
+  expanded: [],
+  lastTopicId: null
 })
 
 /** Whose tree state is being read and written; null between sessions, when nothing is saved. */

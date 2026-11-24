@@ -1,0 +1,63 @@
+.scrim {
+  position: fixed;
+  inset: var(--titlebar-offset) 0 0 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--scrim);
+  animation: fade-in 200ms var(--ease);
+}
+
+.box {
+  width: min(1460px, 100%);
+  height: min(980px, 100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--panel);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-modal);
+  box-shadow: var(--shadow-pop);
+  overflow: hidden;
+  animation: pop-in 320ms var(--ease);
+}
+
+.loading {
+  flex: 1;
+  margin: 24px;
+  border-radius: var(--radius-card);
+  background: linear-gradient(90deg, var(--raised), var(--border), var(--raised));
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 1023px) {
+  .scrim {
+    padding: 16px;
+  }
+}
+
+/* Narrow: the card takes the whole window under the title bar. */
+@media (max-width: 719px) {
+  .scrim {
+    padding: 0;
+  }
+
+  .box {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    animation: sheet-up 280ms var(--ease);
+  }
+}
+
+@keyframes sheet-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
