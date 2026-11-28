@@ -18,8 +18,6 @@
   },
   "topics": {
     "share": "Share",
-    "emptyTitle": "Your topics will live here",
-    "emptyBody": "The topic tree and the cards arrive in the next stages.",
     "new": "New topic",
     "newSubtopic": "New subtopic",
     "rename": "Rename",
@@ -101,6 +99,17 @@
     "known": "Known"
   },
   "practice": {
+    "soon": {
+      "badge": "Coming soon",
+      "title": "Practice is on its way",
+      "text": "Soon your due cards will wait for you here: answer out loud, check yourself and say how well you knew each one.",
+      "points": {
+        "due": "Cards come back right before you'd forget them",
+        "grade": "Four grades: Again, Hard, Good, Easy",
+        "streak": "A daily goal and a streak to keep"
+      },
+      "back": "Back to my topics"
+    },
     "show": "Show answer",
     "due_one": "{{count}} due",
     "due_other": "{{count}} due",

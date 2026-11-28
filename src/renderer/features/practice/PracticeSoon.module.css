@@ -1,0 +1,90 @@
+.area {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px 40px;
+}
+
+.heading {
+  font-size: 26px;
+  color: var(--text);
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 32px 16px;
+  text-align: center;
+  animation: rise 450ms var(--ease) both;
+}
+
+.art {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.badge {
+  padding: 3px 10px;
+  border-radius: var(--radius-chip);
+  background: var(--raised);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.text {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.points {
+  margin: 4px 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+}
+
+.point {
+  color: var(--text-2);
+  font-size: 13px;
+  animation: rise 400ms var(--ease) both;
+}
+
+.point::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+@media (max-width: 719px) {
+  .area {
+    padding: 20px 16px;
+  }
+}

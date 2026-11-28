@@ -3,12 +3,12 @@ import { useEffect } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { ApiError } from '@/api/http'
 import { AuthScreen } from '@/features/auth/AuthScreen'
+import { PracticeSoon } from '@/features/practice/PracticeSoon'
 import { TopicsPage } from '@/features/topics/TopicsPage'
 import { Toaster } from '@/ui/Toaster'
 import { TitleBar } from '@/ui/TitleBar'
 import styles from './App.module.css'
 import { AppearanceSync } from './AppearanceSync'
-import { Placeholder } from './Placeholder'
 import { platform } from './platform'
 import { onSessionEnd, useSession } from './session'
 // Side effect: syncs theme, accent, language and the last topic with the server per user.
@@ -72,7 +72,7 @@ function SessionGate() {
           <Route path="/topics/:topicId" element={<TopicsPage key="mine" source="mine" />} />
           <Route path="/shared" element={<TopicsPage key="shared" source="shared" />} />
           <Route path="/shared/:topicId" element={<TopicsPage key="shared" source="shared" />} />
-          <Route path="/practice" element={<Placeholder titleKey="nav.practice" />} />
+          <Route path="/practice" element={<PracticeSoon />} />
           <Route path="*" element={<Navigate to="/topics" replace />} />
         </Route>
       </Routes>

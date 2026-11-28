@@ -25,6 +25,8 @@ Work goes stage by stage as the spec's «Етапи» section lists them. Window
     topic header or the tree's menu; `ScopePicker` + `scope.ts` keep the picked topics outermost,
     as the server does), Copy to my topics, Leave, pasting a link (`AcceptLink`) and opening a
     deep link after sign-in (`DeepLinkAcceptor`, fed by `app/deepLinks`).
+  - `features/practice/PracticeSoon`: the Practice section says what is coming until practice
+    (stage 5) replaces it.
 
 ## Conventions
 
