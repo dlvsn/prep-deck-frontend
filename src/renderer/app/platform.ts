@@ -1,4 +1,4 @@
-import type { SecureStore, WindowControls } from '../../shared/bridge'
+import type { DeepLinks, SecureStore, WindowControls } from '../../shared/bridge'
 
 /**
  * Everything the UI needs from its host. Components use this and never `window.prepDeck`
@@ -11,6 +11,8 @@ export interface Platform {
   /** Null in a browser: the browser draws its own window. */
   windowControls: WindowControls | null
   secureStore: SecureStore
+  /** Null in a browser: there a link is pasted into Shared with me instead. */
+  deepLinks: DeepLinks | null
 }
 
 /**
@@ -41,7 +43,8 @@ function detect(): Platform {
       osLocale: bridge.locale || navigator.language,
       version: bridge.version || __APP_VERSION__,
       windowControls: bridge.window,
-      secureStore: bridge.secureStore
+      secureStore: bridge.secureStore,
+      deepLinks: bridge.deepLinks
     }
   }
   return {
@@ -49,7 +52,8 @@ function detect(): Platform {
     osLocale: navigator.language,
     version: __APP_VERSION__,
     windowControls: null,
-    secureStore: webSecureStore
+    secureStore: webSecureStore,
+    deepLinks: null
   }
 }
 

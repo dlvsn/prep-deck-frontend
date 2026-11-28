@@ -1,0 +1,59 @@
+.form {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.caption {
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.field {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--border-2);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--muted);
+}
+
+.field:focus-within {
+  border-color: var(--accent-text);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.fieldInvalid,
+.fieldInvalid:focus-within {
+  border-color: var(--danger);
+}
+
+.field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 12px;
+}

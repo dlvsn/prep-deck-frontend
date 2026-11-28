@@ -2,7 +2,22 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { useTranslation } from 'react-i18next'
 import type { Id } from '@/api/types'
 import { useCardModal } from '@/features/cards/cardModalStore'
-import { ChevronRightIcon, FolderPlusIcon, MoreIcon, MoveIcon, PencilIcon, PlusIcon, ShareIcon, SharedIcon, TrashIcon } from '@/ui/icons'
+import { CopyTopicDialog } from '@/features/share/CopyTopicDialog'
+import { LeaveTopicDialog } from '@/features/share/LeaveTopicDialog'
+import { useShareDialog } from '@/features/share/shareDialogStore'
+import {
+  ChevronRightIcon,
+  CopyIcon,
+  FolderPlusIcon,
+  LogOutIcon,
+  MoreIcon,
+  MoveIcon,
+  PencilIcon,
+  PlusIcon,
+  ShareIcon,
+  SharedIcon,
+  TrashIcon
+} from '@/ui/icons'
 import { Menu, type MenuItem } from '@/ui/Menu'
 import { DeleteTopicDialog } from './DeleteTopicDialog'
 import { MoveTopicDialog } from './MoveTopicDialog'
@@ -25,10 +40,13 @@ interface TopicTreeProps {
   query: string
   /** A new subtopic would be hidden by the search, so starting one clears it. */
   onClearQuery(): void
+  /** The tree's accessible name: My topics or Shared with me. */
+  label: string
+  /** Shared with me: each owner's topics under their name. */
+  groupByOwner?: boolean
+  /** A share was left; the page decides where to go if it held the open topic. */
+  onLeft?(node: TopicNode): void
 }
-
-/** The Share dialog arrives with stage 6; until then the menu item is shown disabled. */
-const SHARE_DIALOG_READY = false
 
 type Editing = { kind: 'rename'; id: Id } | { kind: 'create'; parentId: Id | null } | null
 
@@ -40,7 +58,19 @@ type Editing = { kind: 'rename'; id: Id } | { kind: 'create'; parentId: Id | nul
  * (that comes back when the search is cleared); branches do not fold and topics are not dragged,
  * since half of each level is hidden.
  */
-export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot, onCreatingRootDone, query, onClearQuery }: TopicTreeProps) {
+export function TopicTree({
+  tree,
+  selectedId,
+  onSelect,
+  onDeleted,
+  creatingRoot,
+  onCreatingRootDone,
+  query,
+  onClearQuery,
+  label,
+  groupByOwner = false,
+  onLeft
+}: TopicTreeProps) {
   const { t } = useTranslation()
   const { expanded: expandedList, toggle, expand, collapse } = useTopicsUi()
   const expanded = useMemo(() => new Set(expandedList), [expandedList])
@@ -61,6 +91,8 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
   const [menu, setMenu] = useState<{ at: { x: number; y: number }; node: TopicNode } | null>(null)
   const [deleting, setDeleting] = useState<TopicNode | null>(null)
   const [moving, setMoving] = useState<TopicNode | null>(null)
+  const [copying, setCopying] = useState<TopicNode | null>(null)
+  const [leaving, setLeaving] = useState<TopicNode | null>(null)
   const [drag, setDrag] = useState<{ id: Id; over: Id | null; position: DropPosition | null } | null>(null)
 
   const rowRefs = useRef(new Map<Id, HTMLDivElement>())
@@ -187,8 +219,22 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
         label: t('topics.share'),
         icon: <ShareIcon size={16} />,
         allowed: can('share', node.topic),
-        disabled: !SHARE_DIALOG_READY,
-        onSelect: () => undefined
+        onSelect: () => useShareDialog.getState().open(node.topic.id)
+      },
+      {
+        id: 'copy',
+        label: t('shared.copy'),
+        icon: <CopyIcon size={16} />,
+        allowed: can('copy', node.topic),
+        onSelect: () => setCopying(node)
+      },
+      {
+        id: 'leave',
+        label: t('shared.leave'),
+        icon: <LogOutIcon size={16} />,
+        danger: true,
+        allowed: can('leave', node.topic),
+        onSelect: () => setLeaving(node)
       },
       {
         id: 'delete',
@@ -332,9 +378,23 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
     ) : null
 
   const out: ReactElement[] = []
+  let lastOwner: Id | null = null
   rows.forEach((node, index) => {
     const { topic } = node
     const id = topic.id
+    if (groupByOwner && node.depth === 0 && topic.owner.id !== lastOwner) {
+      lastOwner = topic.owner.id
+      out.push(
+        <div key={`owner-${topic.owner.id}`} className={styles.owner} role="presentation">
+          <span className={styles.ownerAvatar} aria-hidden="true">
+            {topic.owner.name.trim().charAt(0).toUpperCase()}
+          </span>
+          <span className={styles.ownerName} title={topic.owner.email}>
+            {topic.owner.name}
+          </span>
+        </div>
+      )
+    }
     const isOpen = isOpenRow(node)
     const hasChildren = hasShownChildren(node)
     // A topic shows its subtree's totals when the subtree is folded away (or hidden by the search).
@@ -474,7 +534,7 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
 
   return (
     <>
-      <div className={styles.tree} role="tree" aria-label={t('nav.myTopics')}>
+      <div className={styles.tree} role="tree" aria-label={label}>
         {out}
         {searching && rows.length === 0 && <p className={styles.noMatch}>{t('topics.noMatch')}</p>}
         <div
@@ -502,6 +562,8 @@ export function TopicTree({ tree, selectedId, onSelect, onDeleted, creatingRoot,
           setMoving(null)
         }}
       />
+      <CopyTopicDialog node={copying} onClose={() => setCopying(null)} />
+      <LeaveTopicDialog node={leaving} onClose={() => setLeaving(null)} onLeft={(node) => onLeft?.(node)} />
     </>
   )
 }

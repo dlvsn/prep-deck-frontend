@@ -2,6 +2,8 @@ import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet } from 'react-router-dom'
 import { AppearancePanel } from '@/features/settings/AppearancePanel'
+import { DeepLinkAcceptor } from '@/features/share/DeepLinkAcceptor'
+import { useSharedTopicList } from '@/features/topics/useTopics'
 import { LogOutIcon, LogoIcon, PaletteIcon, PracticeIcon, SharedIcon, TopicsIcon } from '@/ui/icons'
 import { Popover } from '@/ui/Popover'
 import { useSession } from './session'
@@ -31,13 +33,15 @@ export function Shell() {
 
   const user = useSession((s) => s.user)
   const endSession = useSession((s) => s.logout)
-  // Invitations count once sharing exists (stage 6); the backend has no shared topics yet.
-  const invites = 0
+  // Shares not opened yet: every unseen topic is where a share starts.
+  const sharedTopics = useSharedTopicList()
+  const invites = sharedTopics.data?.filter((topic) => topic.unseen).length ?? 0
   const initial = user?.name.charAt(0).toUpperCase() ?? ''
   const logout = (): void => void endSession()
 
   return (
     <>
+      <DeepLinkAcceptor />
       <div className={narrow ? styles.bodyNarrow : styles.body}>
         {!narrow && (
           <nav className={iconsOnly ? `${styles.rail} ${styles.railCompact}` : styles.rail} aria-label={t('app.name')}>

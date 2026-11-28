@@ -1,10 +1,30 @@
 import { app, BrowserWindow, ipcMain, nativeTheme, shell } from 'electron'
-import { join } from 'node:path'
-import { ARG, IPC } from '../shared/ipc'
+import { join, resolve } from 'node:path'
+import { ARG, DEEP_LINK_SCHEME, IPC } from '../shared/ipc'
 import { clearSecret, readSecret, writeSecret } from './secureStore'
 import { loadWindowState, MIN_HEIGHT, MIN_WIDTH, trackWindowState } from './windowState'
 
 let mainWindow: BrowserWindow | null = null
+
+/** The link the app was started with, until the renderer asks for it. */
+let pendingDeepLink: string | null = null
+
+/** On Windows a link arrives as an argument of the process the OS starts for it. */
+function deepLinkIn(argv: string[]): string | null {
+  return argv.find((arg) => arg.toLowerCase().startsWith(`${DEEP_LINK_SCHEME}://`)) ?? null
+}
+
+/**
+ * Makes Windows open prepdeck:// links with this app. Unpackaged, Electron runs our script, so
+ * the script's path goes along with the executable.
+ */
+function registerDeepLinks(): void {
+  if (process.defaultApp && process.argv[1]) {
+    app.setAsDefaultProtocolClient(DEEP_LINK_SCHEME, process.execPath, [resolve(process.argv[1])])
+  } else {
+    app.setAsDefaultProtocolClient(DEEP_LINK_SCHEME)
+  }
+}
 
 function createWindow(): void {
   const state = loadWindowState()
@@ -78,20 +98,31 @@ function registerIpc(): void {
     writeSecret(value)
   })
   ipcMain.handle(IPC.secureClear, () => clearSecret())
+  ipcMain.handle(IPC.takeDeepLink, () => {
+    const link = pendingDeepLink
+    pendingDeepLink = null
+    return link
+  })
 }
 
-// One running copy: a second launch focuses the first. Deep links (stage 6) arrive this way too.
+// One running copy: a second launch focuses the first. A share link opened while the app runs
+// arrives this way too, as an argument of that second launch.
 if (!app.requestSingleInstanceLock()) {
   app.quit()
 } else {
-  app.on('second-instance', () => {
+  pendingDeepLink = deepLinkIn(process.argv)
+
+  app.on('second-instance', (_event, argv) => {
     if (!mainWindow) return
     if (mainWindow.isMinimized()) mainWindow.restore()
     mainWindow.focus()
+    const link = deepLinkIn(argv)
+    if (link) mainWindow.webContents.send(IPC.deepLink, link)
   })
 
   app.whenReady().then(() => {
     app.setAppUserModelId('com.prepdeck.app')
+    registerDeepLinks()
     registerIpc()
     createWindow()
   })

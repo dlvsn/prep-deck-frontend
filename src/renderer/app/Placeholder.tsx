@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import styles from './Placeholder.module.css'
 
 /** The empty content area of stage 1; each section replaces it with its real screen. */
-export function Placeholder({ titleKey }: { titleKey: 'nav.shared' | 'nav.practice' }) {
+export function Placeholder({ titleKey }: { titleKey: 'nav.practice' }) {
   const { t } = useTranslation()
   return (
     <section className={styles.area}>

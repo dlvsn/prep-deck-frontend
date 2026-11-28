@@ -24,6 +24,14 @@ const bridge: PrepDeckBridge = {
     get: () => ipcRenderer.invoke(IPC.secureGet),
     set: (value) => ipcRenderer.invoke(IPC.secureSet, value),
     clear: () => ipcRenderer.invoke(IPC.secureClear)
+  },
+  deepLinks: {
+    take: () => ipcRenderer.invoke(IPC.takeDeepLink),
+    onLink: (listener) => {
+      const handler = (_e: Electron.IpcRendererEvent, url: string): void => listener(url)
+      ipcRenderer.on(IPC.deepLink, handler)
+      return () => ipcRenderer.removeListener(IPC.deepLink, handler)
+    }
   }
 }
 

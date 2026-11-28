@@ -8,18 +8,22 @@ interface TopicsUiState {
   expanded: Id[]
   /** The topic last opened in My topics, reopened on the next visit. */
   lastTopicId: Id | null
+  /** The same for Shared with me. */
+  lastSharedTopicId: Id | null
   toggle(id: Id): void
   expand(id: Id): void
   collapse(id: Id): void
   setLastTopic(id: Id | null): void
+  setLastSharedTopic(id: Id | null): void
 }
 
 const KEY = 'prep-deck.topics-ui'
 
 // First launch: nothing expanded, no topic remembered; the page opens the first root.
-const initial = (): Pick<TopicsUiState, 'expanded' | 'lastTopicId'> => ({
+const initial = (): Pick<TopicsUiState, 'expanded' | 'lastTopicId' | 'lastSharedTopicId'> => ({
   expanded: [],
-  lastTopicId: null
+  lastTopicId: null,
+  lastSharedTopicId: null
 })
 
 /** Whose tree state is being read and written; null between sessions, when nothing is saved. */
@@ -65,13 +69,14 @@ export const useTopicsUi = create<TopicsUiState>()(
         if (!get().expanded.includes(id)) set({ expanded: [...get().expanded, id] })
       },
       collapse: (id) => set({ expanded: get().expanded.filter((e) => e !== id) }),
-      setLastTopic: (id) => set({ lastTopicId: id })
+      setLastTopic: (id) => set({ lastTopicId: id }),
+      setLastSharedTopic: (id) => set({ lastSharedTopicId: id })
     }),
     {
       name: KEY,
       version: 1,
       storage: createJSONStorage(() => perUserStorage),
-      partialize: ({ expanded, lastTopicId }) => ({ expanded, lastTopicId }),
+      partialize: ({ expanded, lastTopicId, lastSharedTopicId }) => ({ expanded, lastTopicId, lastSharedTopicId }),
       // Read only once we know whose state it is.
       skipHydration: true
     }

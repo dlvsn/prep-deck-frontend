@@ -9,7 +9,6 @@ import type {
   Id,
   PracticeItem,
   PracticeScope,
-  Role,
   Session,
   Settings,
   SettingsInput,
@@ -100,32 +99,56 @@ export interface ImagesRepository {
   upload(file: Blob, options?: UploadOptions): Promise<CardImage>
 }
 
+/**
+ * prep-deck-backend `/api/topics/{id}/sharing` (the owner's side: any topic of the tree names
+ * it, and every call answers the tree's sharing as it stands after) and `/api/shares` (the side
+ * of the people it is shared with). Topic ids given must lie in the tree ("share.topicNotInTree")
+ * and may not be empty ("share.pickOne"); a topic brings its whole subtree.
+ */
+export interface SharesRepository {
+  /** Topics others shared with the user, flat; see {@link Topic.path}. */
+  listShared(): Promise<Topic[]>
+  /** The share the topic came through is no longer new. */
+  markSeen(topicId: Id): Promise<void>
+  get(topicId: Id): Promise<TopicSharing>
+  /**
+   * Emails an invitation (by email or username) to these topics. Rejects with
+   * "share.noSuchUser", "share.invalidEmail", "share.selfInvite", "share.alreadyHasAccess" or
+   * "share.inviteTooSoon" (data: RetryAfter).
+   */
+  invite(topicId: Id, login: string, topicIds: Id[]): Promise<TopicSharing>
+  revokeInvite(topicId: Id, inviteId: Id): Promise<TopicSharing>
+  /** Replaces the topics a person may see in the tree. */
+  changeTopics(topicId: Id, userId: Id, topicIds: Id[]): Promise<TopicSharing>
+  /** Takes the whole tree from them; the public link no longer lets them back in. */
+  removeMember(topicId: Id, userId: Id): Promise<TopicSharing>
+  /** On or off; `topicIds` given replaces what the link opens. */
+  setLink(topicId: Id, enabled: boolean, topicIds?: Id[]): Promise<TopicSharing>
+  /** A new link: the old one stops working, people keep their access. */
+  resetLink(topicId: Id): Promise<TopicSharing>
+  /** Takes the tree from everyone who came through the link alone. */
+  removeLinkMembers(topicId: Id): Promise<TopicSharing>
+  /**
+   * Opens a public or invitation link (the token, or the whole link) and answers the first topic
+   * it opened. Rejects with "share.linkInvalid", "share.ownTopic", "share.accessRevoked",
+   * "share.inviteExpired" or "share.inviteForAnotherEmail".
+   */
+  accept(token: string): Promise<Topic>
+  /** Gives up the share the topic came through, with everything below it. */
+  leave(topicId: Id): Promise<void>
+  /** Copies the topic with its subtopics, cards and pictures under parentId (null: the top level). */
+  copyToMine(topicId: Id, parentId: Id | null): Promise<Topic>
+}
+
 /*
  * Not served by the backend yet, so not part of {@link Repositories}: the calls practice (stage 5)
- * and sharing (stage 6) will make, kept as the contract the backend is to implement.
+ * will make, kept as the contract the backend is to implement.
  */
 
 export interface PracticeRepository {
   queue(scope: PracticeScope): Promise<PracticeItem[]>
   grade(cardId: Id, grade: Grade): Promise<Card>
   today(): Promise<DayProgress>
-}
-
-export interface SharesRepository {
-  /** Topics shared with the user, flat, each carrying its owner. */
-  listShared(): Promise<Topic[]>
-  markSeen(topicId: Id): Promise<void>
-  get(topicId: Id): Promise<TopicSharing>
-  /** Rejects with "share.noSuchUser" when nobody has that email or username. */
-  invite(topicId: Id, login: string, role: Exclude<Role, 'owner'>): Promise<TopicSharing>
-  changeRole(topicId: Id, userId: Id, role: Exclude<Role, 'owner'>): Promise<TopicSharing>
-  revoke(topicId: Id, userId: Id): Promise<TopicSharing>
-  setLinkEnabled(topicId: Id, enabled: boolean): Promise<TopicSharing>
-  /** Opens a shared link: the topic joins Shared with me as Can view. */
-  acceptLink(token: string): Promise<Topic>
-  leave(topicId: Id): Promise<void>
-  /** Copies the topic with its subtopics and cards under parentId (null: the root). */
-  copyToMine(topicId: Id, parentId: Id | null): Promise<Topic>
 }
 
 export interface SettingsRepository {
@@ -139,5 +162,6 @@ export interface Repositories {
   topics: TopicsRepository
   cards: CardsRepository
   images: ImagesRepository
+  shares: SharesRepository
   settings: SettingsRepository
 }

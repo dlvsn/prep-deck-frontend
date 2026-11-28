@@ -160,3 +160,10 @@
   margin: 0;
   max-width: 44ch;
 }
+
+.treeEmpty {
+  margin: 8px 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 19px;
+}

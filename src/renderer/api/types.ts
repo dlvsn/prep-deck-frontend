@@ -72,6 +72,12 @@ export interface Topic {
   dueCount: number
   /** A shared topic the user has not opened yet. */
   unseen: boolean
+  /**
+   * Shared with me only: where the part the user sees starts (`parentId` null) under parents
+   * they cannot see, their titles from the top ("Java" for a shared "Java / JVM"). Empty
+   * otherwise.
+   */
+  path: string[]
 }
 
 export type CardStatus = 'new' | 'learning' | 'known'
@@ -124,18 +130,46 @@ export interface PracticeScope {
   topicId?: Id
 }
 
-export interface Share {
+/** A role the owner can hand to someone else. */
+export type SharedRole = Exclude<Role, 'owner'>
+
+/** Someone with access to part of a tree. */
+export interface ShareMember {
   user: User
-  role: Exclude<Role, 'owner'>
+  role: SharedRole
+  /** Every topic they have came through the public link. */
+  viaLink: boolean
+  /** The topics granted to them, each with its whole subtree, in tree order. */
+  topicIds: Id[]
+  since: Instant
 }
 
+/** An invitation letter not accepted yet. */
+export interface PendingInvite {
+  id: Id
+  email: string
+  topicIds: Id[]
+  invitedAt: Instant
+  expiresAt: Instant
+}
+
+/** The tree's public link; `token` and `url` only while it is enabled. */
+export interface ShareLink {
+  enabled: boolean
+  token: string | null
+  url: string | null
+  topicIds: Id[]
+  /** People who came through the link alone. */
+  joinedCount: number
+}
+
+/** Who can see a tree (prep-deck-backend `SharingResponse`), whichever of its topics was asked. */
 export interface TopicSharing {
-  topicId: Id
+  rootTopicId: Id
   owner: User
-  people: Share[]
-  linkEnabled: boolean
-  /** Present while the link is enabled; opens as prepdeck://topic/<token>. */
-  linkToken: string | null
+  people: ShareMember[]
+  invites: PendingInvite[]
+  link: ShareLink
 }
 
 /** What a user picks, kept on the server so every device they sign in on starts the same. */

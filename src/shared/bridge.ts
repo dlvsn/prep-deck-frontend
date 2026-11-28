@@ -10,6 +10,15 @@ export interface PrepDeckBridge {
   readonly window: WindowControls
   /** Encrypted with the OS keychain (DPAPI on Windows); never readable by other users. */
   readonly secureStore: SecureStore
+  readonly deepLinks: DeepLinks
+}
+
+/** prepdeck:// links the OS opened the app with. */
+export interface DeepLinks {
+  /** The link the app was started with, once; null when there was none or it was taken. */
+  take(): Promise<string | null>
+  /** Links opened while the app runs. Returns the unsubscribe function. */
+  onLink(listener: (url: string) => void): () => void
 }
 
 export interface WindowControls {

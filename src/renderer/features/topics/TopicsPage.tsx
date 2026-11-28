@@ -5,30 +5,45 @@ import type { Id } from '@/api/types'
 import { useLayoutMode } from '@/app/useLayoutMode'
 import { CardModal } from '@/features/cards/CardModal'
 import { CardsSection } from '@/features/cards/CardsSection'
+import { EmptyShared } from '@/features/share/EmptyShared'
+import { ShareDialog } from '@/features/share/ShareDialog'
+import { useSharedMutations } from '@/features/share/useShared'
 import { Button } from '@/ui/Button'
 import { anyLayerOpen } from '@/ui/dialogLayer'
 import { CloseIcon, MenuIcon, PlusIcon, SearchIcon } from '@/ui/icons'
+import { useToasts } from '@/ui/toast'
 import { EmptyTopics } from './EmptyTopics'
 import { pathTo, type TopicNode } from './tree'
 import { TopicHeader } from './TopicHeader'
 import styles from './TopicsPage.module.css'
 import { TopicTree } from './TopicTree'
 import { useTopicsUi } from './topicsUiStore'
-import { useMyTopics } from './useTopics'
+import { useMyTopics, useSharedTopics } from './useTopics'
 
 /**
- * Screen 1, My topics: the topic tree beside the open topic. On a compact or narrow window the
- * tree moves into a drawer that slides over the content (☰ in the header).
+ * Screen 1, My topics, and screen 4, Shared with me: the topic tree beside the open topic. On a
+ * compact or narrow window the tree moves into a drawer that slides over the content (☰ in the
+ * header). Shared with me groups the tree by owner and offers only what the role allows.
  */
-export function TopicsPage() {
+export function TopicsPage({ source }: { source: 'mine' | 'shared' }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { topicId } = useParams<{ topicId: string }>()
   const mode = useLayoutMode()
   const asDrawer = mode === 'compact' || mode === 'narrow'
+  const shared = source === 'shared'
+  const base = shared ? '/shared' : '/topics'
+  const title = t(shared ? 'nav.shared' : 'nav.myTopics')
 
-  const { tree, isLoading } = useMyTopics()
-  const { lastTopicId, setLastTopic, expand } = useTopicsUi()
+  const mine = useMyTopics()
+  const others = useSharedTopics()
+  const { tree, isLoading } = shared ? others : mine
+  const ui = useTopicsUi()
+  const { expand } = ui
+  const lastTopicId = shared ? ui.lastSharedTopicId : ui.lastTopicId
+  const setLastTopic = shared ? ui.setLastSharedTopic : ui.setLastTopic
+  const { markSeen } = useSharedMutations()
+  const markSeenMutate = markSeen.mutate
   const [creatingRoot, setCreatingRoot] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -45,10 +60,22 @@ export function TopicsPage() {
     if (!node || !tree) return
     setLastTopic(node.topic.id)
     // Opening a topic reveals it in the tree.
-    pathTo(tree, node.topic.id)
-      .slice(0, -1)
-      .forEach((n) => expand(n.topic.id))
-  }, [node, tree, setLastTopic, expand])
+    const path = pathTo(tree, node.topic.id)
+    path.slice(0, -1).forEach((n) => expand(n.topic.id))
+    // A share is new until something in it is opened.
+    if (shared && path[0].topic.unseen) markSeenMutate(path[0].topic.id)
+  }, [node, tree, setLastTopic, expand, shared, markSeenMutate])
+
+  // The open shared topic vanished from the list: its owner took it back (or deleted it).
+  const shownId = useRef<Id | null>(null)
+  useEffect(() => {
+    if (!tree) return
+    if (node) shownId.current = node.topic.id
+    else if (shared && shownId.current !== null && shownId.current === topicId) {
+      useToasts.getState().show(t('errors.noAccess'))
+      shownId.current = null
+    }
+  }, [tree, node, shared, topicId, t])
 
   useEffect(() => {
     if (!asDrawer) setDrawerOpen(false)
@@ -108,42 +135,54 @@ export function TopicsPage() {
 
   const open = useCallback(
     (id: Id) => {
-      navigate(`/topics/${id}`)
+      navigate(`${base}/${id}`)
       setDrawerOpen(false)
     },
-    [navigate]
+    [navigate, base]
   )
 
   const onDeleted = useCallback(
     (deleted: TopicNode) => {
       if (!tree || !topicId) return
       const openIsGone = pathTo(tree, topicId).some((n) => n.topic.id === deleted.topic.id)
-      if (openIsGone) navigate(deleted.topic.parentId ? `/topics/${deleted.topic.parentId}` : '/topics', { replace: true })
+      if (openIsGone) navigate(deleted.topic.parentId ? `${base}/${deleted.topic.parentId}` : base, { replace: true })
     },
-    [tree, topicId, navigate]
+    [tree, topicId, navigate, base]
   )
 
-  // /topics, or a topic that no longer exists: go to the last one opened, else the first.
+  const onLeft = useCallback(
+    (left: TopicNode) => {
+      if (!tree || !topicId) return
+      shownId.current = null
+      if (pathTo(tree, topicId).some((n) => n.topic.id === left.topic.id)) navigate(base, { replace: true })
+    },
+    [tree, topicId, navigate, base]
+  )
+
+  // The bare section, or a topic that no longer exists: go to the last one opened, else the first.
   if (tree && !node) {
     const fallback = (lastTopicId && tree.byId.has(lastTopicId) ? lastTopicId : null) ?? tree.roots[0]?.topic.id
-    if (fallback && fallback !== topicId) return <Navigate to={`/topics/${fallback}`} replace />
+    if (fallback && fallback !== topicId) return <Navigate to={`${base}/${fallback}`} replace />
+    if (!fallback && topicId) return <Navigate to={base} replace />
   }
 
   const panel = (
     <aside
       ref={panelRef}
       className={asDrawer ? `${styles.panel} ${styles.drawer}` : styles.panel}
-      aria-label={t('nav.myTopics')}
+      aria-label={title}
     >
       <div className={styles.panelHeader}>
-        <h2 className={styles.panelTitle}>{t('nav.myTopics')}</h2>
-        <Button
-          iconOnly
-          icon={<PlusIcon size={18} />}
-          aria-label={t('topics.new')}
-          title={t('topics.new')}
-          onClick={startCreatingRoot}
-        />
+        <h2 className={styles.panelTitle}>{title}</h2>
+        {!shared && (
+          <Button
+            iconOnly
+            icon={<PlusIcon size={18} />}
+            aria-label={t('topics.new')}
+            title={t('topics.new')}
+            onClick={startCreatingRoot}
+          />
+        )}
         {asDrawer && (
           <Button
             variant="ghost"
@@ -181,8 +220,13 @@ export function TopicsPage() {
             onCreatingRootDone={() => setCreatingRoot(false)}
             query={activeQuery}
             onClearQuery={() => setQuery('')}
+            label={title}
+            groupByOwner={shared}
+            onLeft={onLeft}
           />
-        )}        {isLoading && <div className={styles.skeleton} aria-hidden="true" />}
+        )}
+        {shared && tree && !hasTopics && <p className={styles.treeEmpty}>{t('shared.treeEmpty')}</p>}
+        {isLoading && <div className={styles.skeleton} aria-hidden="true" />}
       </div>
 
     </aside>
@@ -191,6 +235,7 @@ export function TopicsPage() {
   return (
     <div className={styles.page}>
       {tree && <CardModal tree={tree} />}
+      {!shared && tree && <ShareDialog tree={tree} />}
       {asDrawer ? (
         drawerOpen && (
           <div
@@ -222,7 +267,7 @@ export function TopicsPage() {
             <CardsSection key={node.topic.id} tree={tree} node={node} />
           </>
         ) : tree && !hasTopics ? (
-          <EmptyTopics onCreate={startCreatingRoot} />
+          shared ? <EmptyShared /> : <EmptyTopics onCreate={startCreatingRoot} />
         ) : (
           tree && (
             <div className={styles.pick}>

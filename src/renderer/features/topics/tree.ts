@@ -16,8 +16,11 @@ export interface TopicTree {
   byId: Map<Id, TopicNode>
 }
 
-/** Builds the tree from the flat list the API returns, siblings in their saved order. */
-export function buildTree(topics: Topic[]): TopicTree {
+/**
+ * Builds the tree from the flat list the API returns, siblings in their saved order. With
+ * `groupByOwner` (Shared with me) the top level comes owner by owner, by name.
+ */
+export function buildTree(topics: Topic[], { groupByOwner = false }: { groupByOwner?: boolean } = {}): TopicTree {
   const byId = new Map<Id, TopicNode>()
   for (const topic of topics) {
     byId.set(topic.id, { topic, children: [], depth: 0, totalCards: 0, totalDue: 0 })
@@ -40,6 +43,10 @@ export function buildTree(topics: Topic[]): TopicTree {
     }
   }
   finish(roots, 0)
+  if (groupByOwner) {
+    // Stable sort: each owner's topics keep their order.
+    roots.sort((a, b) => a.topic.owner.name.localeCompare(b.topic.owner.name) || a.topic.owner.id.localeCompare(b.topic.owner.id))
+  }
   return { roots, byId }
 }
 

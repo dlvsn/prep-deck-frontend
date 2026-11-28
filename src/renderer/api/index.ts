@@ -4,6 +4,7 @@ import { createHttpAuthRepository } from './http/authRepository'
 import { createHttpCardsRepository } from './http/cardsRepository'
 import { createHttpImagesRepository } from './http/imagesRepository'
 import { createHttpSettingsRepository } from './http/settingsRepository'
+import { createHttpSharesRepository } from './http/sharesRepository'
 import { createHttpTopicsRepository } from './http/topicsRepository'
 import type { Repositories } from './repositories'
 
@@ -22,6 +23,7 @@ function createRepositories(): Repositories {
     topics: createHttpTopicsRepository(http),
     cards: createHttpCardsRepository(http),
     images: createHttpImagesRepository(http),
+    shares: createHttpSharesRepository(http),
     settings: createHttpSettingsRepository(http)
   }
 }

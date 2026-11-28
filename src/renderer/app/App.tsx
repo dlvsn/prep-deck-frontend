@@ -1,6 +1,7 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { ApiError } from '@/api/http'
 import { AuthScreen } from '@/features/auth/AuthScreen'
 import { TopicsPage } from '@/features/topics/TopicsPage'
 import { Toaster } from '@/ui/Toaster'
@@ -14,10 +15,19 @@ import { onSessionEnd, useSession } from './session'
 import './settingsSync'
 import { Shell } from './Shell'
 
-const queryClient = new QueryClient({
+const queryClient: QueryClient = new QueryClient({
   defaultOptions: {
     queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus: false }
-  }
+  },
+  queryCache: new QueryCache({
+    // A topic that answers "no access" was taken away (or deleted) since the lists were read:
+    // they refetch, and the page showing it moves on.
+    onError: (error) => {
+      if (error instanceof ApiError && error.message === 'errors.noAccess') {
+        void queryClient.invalidateQueries({ queryKey: ['topics'] })
+      }
+    }
+  })
 })
 
 // Whatever the previous user saw must not show for the next one.
@@ -58,9 +68,10 @@ function SessionGate() {
     <HashRouter>
       <Routes>
         <Route element={<Shell />}>
-          <Route path="/topics" element={<TopicsPage />} />
-          <Route path="/topics/:topicId" element={<TopicsPage />} />
-          <Route path="/shared" element={<Placeholder titleKey="nav.shared" />} />
+          <Route path="/topics" element={<TopicsPage key="mine" source="mine" />} />
+          <Route path="/topics/:topicId" element={<TopicsPage key="mine" source="mine" />} />
+          <Route path="/shared" element={<TopicsPage key="shared" source="shared" />} />
+          <Route path="/shared/:topicId" element={<TopicsPage key="shared" source="shared" />} />
           <Route path="/practice" element={<Placeholder titleKey="nav.practice" />} />
           <Route path="*" element={<Navigate to="/topics" replace />} />
         </Route>

@@ -5,14 +5,36 @@ import type { Id, Topic } from '@/api/types'
 import { toastError } from '@/ui/toast'
 import { buildTree, type TopicTree } from './tree'
 
+/** Both lists sit under "topics", so one invalidation refreshes My topics and Shared with me. */
 export const topicKeys = {
-  mine: ['topics', 'mine'] as const
+  mine: ['topics', 'mine'] as const,
+  shared: ['topics', 'shared'] as const
 }
 
-export function useMyTopics(): { tree: TopicTree | null; isLoading: boolean; isError: boolean } {
+export interface TopicsSource {
+  tree: TopicTree | null
+  isLoading: boolean
+  isError: boolean
+}
+
+export function useMyTopics(): TopicsSource {
   const query = useQuery({ queryKey: topicKeys.mine, queryFn: () => api.topics.listMine() })
   const tree = useMemo(() => (query.data ? buildTree(query.data) : null), [query.data])
   return { tree, isLoading: query.isLoading, isError: query.isError }
+}
+
+/**
+ * Shared with me, grouped by owner. Refetched when the window comes back to the front: an owner
+ * may have shared more, or taken a share away, meanwhile.
+ */
+export function useSharedTopics(): TopicsSource {
+  const query = useSharedTopicList()
+  const tree = useMemo(() => (query.data ? buildTree(query.data, { groupByOwner: true }) : null), [query.data])
+  return { tree, isLoading: query.isLoading, isError: query.isError }
+}
+
+export function useSharedTopicList() {
+  return useQuery({ queryKey: topicKeys.shared, queryFn: () => api.shares.listShared(), refetchOnWindowFocus: true })
 }
 
 /** Replaces one topic in the cached list right away, so the tree does not wait for the server. */
