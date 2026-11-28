@@ -1,0 +1,17 @@
+# The web version of the client in a container. From this folder:
+#   docker compose up -d --build     build and start it at http://localhost:8081
+#   docker compose down              stop
+#
+# It needs the backend running (prep-deck-backend: docker compose up -d there). VITE_API_URL comes
+# from .env next to this file when it exists (copy .env.example), otherwise the default below.
+# The backend must allow this page's origin; its compose file allows http://localhost:8081.
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080/api}
+    ports:
+      - "${WEB_PORT:-8081}:80"
+    restart: unless-stopped

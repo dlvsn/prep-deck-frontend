@@ -1,0 +1,11 @@
+# The image builds from the sources alone; nothing local, nothing secret.
+.git
+.idea
+.vscode
+.claude
+node_modules
+out
+dist
+.env
+.env.*
+*.log

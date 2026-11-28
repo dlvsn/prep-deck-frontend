@@ -9,6 +9,7 @@
     "dev": "electron-vite dev",
     "dev:web": "vite --config vite.web.config.ts",
     "build": "npm run typecheck && electron-vite build",
+    "build:web": "vite build --config vite.web.config.ts",
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit --composite false -p tsconfig.node.json && tsc --noEmit --composite false -p tsconfig.web.json",
     "i18n:check": "node scripts/check-i18n.mjs"

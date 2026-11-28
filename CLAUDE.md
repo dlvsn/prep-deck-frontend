@@ -50,5 +50,8 @@ Work goes stage by stage as the spec's «Етапи» section lists them. Window
 - A file dropped on the window never opens in it: `main.tsx` cancels stray drops and the main
   process refuses navigation; drop zones use `features/cards/images/useFileDrop`.
 - Icons are in-house SVGs in `ui/icons.tsx`, drawn in the Lucide style.
+- The web version also builds into a container: `Dockerfile` (`npm run build:web`, served by nginx
+  with `docker/nginx.conf`) and `docker-compose.yaml` (http://localhost:8081). `VITE_API_URL` is a
+  build argument, baked into the bundle.
 - A query that fails with `errors.noAccess` refetches both topic lists (`App.tsx`): a share taken
   away makes its topic leave Shared with me, and the page shows "You no longer have access".
